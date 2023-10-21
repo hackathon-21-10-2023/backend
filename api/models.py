@@ -1,3 +1,4 @@
+from django.contrib.auth.base_user import AbstractBaseUser
 from django.db import models
 
 
@@ -9,7 +10,7 @@ class Department(models.Model):
         verbose_name_plural = 'Отделы'
 
 
-class User(models.Model):
+class User(AbstractBaseUser):
     name = models.CharField(max_length=100, verbose_name='Имя')
     surname = models.CharField(max_length=100, verbose_name='Фамилия')
     password = models.CharField(max_length=100, verbose_name='Пароль')
