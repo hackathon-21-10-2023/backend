@@ -4,6 +4,10 @@ from django.db import models
 class Department(models.Model):
     name = models.CharField(max_length=100)
 
+    class Meta:
+        verbose_name = 'Отдел'
+        verbose_name_plural = 'Отделы'
+
 
 class User(models.Model):
     name = models.CharField(max_length=100, verbose_name='Имя')
