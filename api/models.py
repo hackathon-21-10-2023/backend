@@ -25,7 +25,7 @@ class User(AbstractUser):
     department = models.ForeignKey(Department, on_delete=models.CASCADE, related_name='users', verbose_name='Отдел',
                                    null=True, blank=True)
     position = models.CharField(max_length=100, verbose_name='Должность')
-    photo = models.ImageField(upload_to='photos', verbose_name='Фото', null=True, blank=True)
+    photo = models.ImageField(upload_to='static/photos', verbose_name='Фото', null=True, blank=True)
     is_intern = models.BooleanField(default=False, verbose_name='Является стажером')
     is_head = models.BooleanField(default=False, verbose_name='Является руководителем')
     is_awaiting_feedback = models.BooleanField(default=False, verbose_name='Ожидает отзыва')
@@ -35,9 +35,9 @@ class User(AbstractUser):
     def __str__(self):
         return f"{self.name} {self.surname} <{self.email}>"
 
-    # save username as name+surname+email
+    # save username as email
     def save(self, *args, **kwargs):
-        self.username = f"{self.name} {self.surname} <{self.email}>"
+        self.username = self.email
         super().save(*args, **kwargs)
 
     class Meta:
@@ -60,7 +60,7 @@ class User(AbstractUser):
             'exp': int(dt.strftime('%s'))
         }, settings.SECRET_KEY, algorithm='HS256')
 
-        return token.decode('utf-8')
+        return token
 
 
 class Feedback(models.Model):
@@ -103,3 +103,6 @@ class FeedbackItem(models.Model):
     class Meta:
         verbose_name = 'Отзыв'
         verbose_name_plural = 'Отзывы'
+
+    def __str__(self):
+        return f"{self.metric_name} ({self.feedback.from_user} -> {self.feedback.to_user})"

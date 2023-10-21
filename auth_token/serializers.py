@@ -1,6 +1,8 @@
 from django.contrib.auth import authenticate
 from rest_framework import serializers
 
+from api.models import User
+
 
 class LoginSerializer(serializers.Serializer):
     """
@@ -41,7 +43,13 @@ class LoginSerializer(serializers.Serializer):
                 'A password is required to log in.'
             )
 
-        user = authenticate(username=email, password=password)
+        try:
+            user = User.objects.get(username=email, password=password)
+        except User.DoesNotExist:
+            raise serializers.ValidationError(
+                'A user with this email and password was not found.'
+            )
+        # user = authenticate(username=email, password=password)
 
         if user is None:
             raise serializers.ValidationError(

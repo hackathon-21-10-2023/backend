@@ -1,3 +1,4 @@
+from rest_framework.exceptions import PermissionDenied
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 from django.contrib.auth import get_user_model
@@ -23,12 +24,12 @@ class SlavesListForItsHead(generics.ListCreateAPIView):
         head_id = self.kwargs['pk']
         head = get_object_or_404(User, pk=head_id)
         if not head.is_head:
-            return Response(status=403, data={"detail": "Not a head"})
+            raise PermissionDenied("Only head can list slaves")
 
         head_department = head.department
         if not head.department:
-            return Response(status=404, data={"detail": "Department not found for head"})
+            raise PermissionDenied("Department not found for head")
 
         slaves_and_head_in_department = User.objects.filter(department=head_department)
         slaves_in_department = slaves_and_head_in_department.exclude(pk=head.pk)
-        return self.serializer_class(slaves_in_department)
+        return slaves_in_department

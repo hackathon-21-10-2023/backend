@@ -8,7 +8,9 @@ class CustomUserAdmin(admin.ModelAdmin):
     list_display = ('email', 'department', 'position', 'is_intern', 'is_head', 'is_awaiting_feedback')
     list_filter = ('department', 'position', 'is_intern', 'is_head', 'is_awaiting_feedback')
     fieldsets = (
-        (None, {'fields': ('name', 'surname', 'email', 'department', 'position', 'is_intern', 'is_head', 'is_awaiting_feedback', 'feedback_viewed')}),
+        (None, {'fields': (
+        'email', 'password', 'name', 'surname', 'photo', 'department', 'position', 'is_intern', 'is_head',
+        'is_awaiting_feedback', 'feedback_viewed')}),
     )
 
 
