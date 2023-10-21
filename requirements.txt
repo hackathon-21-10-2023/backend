@@ -59,3 +59,5 @@ waitress==2.1.2
 websockets==12.0
 Werkzeug==3.0.0
 yarl==1.9.2
+
+djangorestframework~=3.14.0
