@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import User, Department, Feedback, FeedbackItem, WaitForReview
+from .models import User, Department, Feedback, FeedbackItem, WaitForReview, Metric
 
 
 @admin.register(User)
@@ -24,3 +24,4 @@ class WaitForReviewAdmin(admin.ModelAdmin):
 admin.site.register(Department, admin.ModelAdmin)
 admin.site.register(Feedback, admin.ModelAdmin)
 admin.site.register(FeedbackItem, admin.ModelAdmin)
+admin.site.register(Metric, admin.ModelAdmin)

@@ -36,4 +36,6 @@ urlpatterns = [
     path("ask_review/<int:pk>/", views.AskReview.as_view()),
     path("get_me/", views.GetMe.as_view()),
     path("list_need_to_review_users/", views.ListNeedToReviewUsers.as_view()),
+    path("metric/list/", views.MetricListView.as_view()),
+
 ]

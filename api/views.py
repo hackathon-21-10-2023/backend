@@ -8,9 +8,9 @@ from rest_framework import generics, permissions, status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.views import APIView
 
-from api.serializers import UserSerializer
+from api.serializers import UserSerializer, MetricSerializer
 from .exceptions import IsNotHeadError, DepartmentNotFoundError, NoHeadForDepartamentFoundError
-from .models import User, WaitForReview
+from .models import User, WaitForReview, Metric
 
 
 @api_view()
@@ -49,7 +49,8 @@ class AskReview(APIView):
         try:
             reviewers = user.reviewers
         except NoHeadForDepartamentFoundError:
-            return Response(status=status.HTTP_400_BAD_REQUEST, data={"detail": "Department not found for head for this intern"})
+            return Response(status=status.HTTP_400_BAD_REQUEST,
+                            data={"detail": "Department not found for head for this intern"})
 
         if len(reviewers) == 0:
             return Response(status=status.HTTP_400_BAD_REQUEST,
@@ -80,3 +81,11 @@ class ListNeedToReviewUsers(generics.ListAPIView):
         subquery = WaitForReview.objects.filter(from_users=self.request.user).values('to_user__pk')
         queryset = User.objects.exclude(pk=self.request.user.pk).filter(pk=Subquery(subquery))
         return queryset
+
+
+class MetricListView(generics.ListAPIView):
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = MetricSerializer
+
+    def get_queryset(self):
+        return Metric.objects.all()

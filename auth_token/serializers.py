@@ -44,7 +44,7 @@ class LoginSerializer(serializers.Serializer):
             )
 
         try:
-            user = User.objects.get(username=email, password=password)
+            user = authenticate(username=email, password=password)
         except User.DoesNotExist:
             raise serializers.ValidationError(
                 'A user with this email and password was not found.'

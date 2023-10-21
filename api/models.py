@@ -95,8 +95,9 @@ class User(AbstractUser):
 
 class WaitForReview(models.Model):
     to_user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='wait_for_review_user',
-                                verbose_name='Пользователь, который запросил обратную связь')
-    from_users = models.ManyToManyField(User, verbose_name="Пользователи, которые должны дать обратную связь", related_name='wait_for_review_from_users', blank=True)
+                                   verbose_name='Пользователь, который запросил обратную связь')
+    from_users = models.ManyToManyField(User, verbose_name="Пользователи, которые должны дать обратную связь",
+                                        related_name='wait_for_review_from_users', blank=True)
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='Время создания')
 
     class Meta:
@@ -134,7 +135,7 @@ class Feedback(models.Model):
 
 
 class FeedbackItem(models.Model):
-    metric_name = models.CharField(max_length=500, verbose_name='Название метрики')
+    metric = models.ForeignKey(to='Metric', on_delete=models.CASCADE, null=True)
     text = models.TextField(verbose_name='Текст')
     score_tone = models.IntegerField(verbose_name='Тональность оценки',
                                      validators=[MinValueValidator(-1), MaxValueValidator(1)])
@@ -146,4 +147,13 @@ class FeedbackItem(models.Model):
         verbose_name_plural = 'Отзывы'
 
     def __str__(self):
-        return f"{self.metric_name} ({self.feedback.from_user} -> {self.feedback.to_user})"
+        return f"{self.metric.title if self.metric else ''} ({self.feedback.from_user} -> {self.feedback.to_user})"
+
+
+class Metric(models.Model):
+    title = models.TextField()
+    description = models.TextField()
+
+    class Meta:
+        verbose_name = 'Метрика'
+        verbose_name_plural = 'Метрики'
