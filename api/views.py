@@ -1,4 +1,5 @@
 from django.db import transaction
+from django.db.models import Subquery
 from rest_framework.exceptions import PermissionDenied, ValidationError
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
@@ -8,7 +9,6 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.views import APIView
 
 from api.serializers import UserSerializer
-from . import models
 from .exceptions import IsNotHeadError, DepartmentNotFoundError, NoHeadForDepartamentFoundError
 from .models import User, WaitForReview
 
@@ -70,3 +70,13 @@ class GetMe(generics.RetrieveAPIView):
 
     def get_object(self):
         return self.request.user
+
+
+class ListNeedToReviewUsers(generics.ListAPIView):
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = UserSerializer
+
+    def get_queryset(self):
+        subquery = WaitForReview.objects.filter(from_users=self.request.user).values('to_user__pk')
+        queryset = User.objects.exclude(pk=self.request.user.pk).filter(pk=Subquery(subquery))
+        return queryset

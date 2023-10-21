@@ -124,7 +124,7 @@ if (JWTAuthToken) {
 ### Запросить обратную связь
 ```POST /ask_review/<int:pk>/```
 
-Возвращает список пользователей, которые должны будут оценить `<int:pk>` сотрудника
+Возвращает список пользователей, которые должны будут оценить `<int:pk>` сотрудника:
 ```json
 [
     {
@@ -159,9 +159,10 @@ if (JWTAuthToken) {
 ```
 
 
-### Информация о пользователе, получаемая из токена
+### Информация о пользователе (авторизация по JWT)
 ```GET /get_me/```
 
+Ответ:
 ```json
 {
   "id": 4,
@@ -177,4 +178,27 @@ if (JWTAuthToken) {
   "department": 1,
   "feedback_viewed": null
 }
+```
+
+### Список пользователей, которых нужно оценить (авторизация по JWT) 
+```GET /list_need_to_review_users/```
+
+Ответ:
+```json
+[
+  {
+    "id": 6,
+    "username": "evewe@gedsg.ru",
+    "name": "Евгений",
+    "surname": "Таримов",
+    "email": "evewe@gedsg.ru",
+    "position": "Лид",
+    "photo": "http://127.0.0.1:8000/static/photos/person4.jpeg",
+    "is_intern": false,
+    "is_head": true,
+    "is_awaiting_feedback": true,
+    "department": 1,
+    "feedback_viewed": null
+  }
+]
 ```

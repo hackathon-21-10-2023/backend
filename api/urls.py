@@ -35,4 +35,5 @@ urlpatterns = [
     path('list_slaves_of_head/<int:pk>/', views.SlavesListForItsHead.as_view()),
     path("ask_review/<int:pk>/", views.AskReview.as_view()),
     path("get_me/", views.GetMe.as_view()),
+    path("list_need_to_review_users/", views.ListNeedToReviewUsers.as_view()),
 ]
