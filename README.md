@@ -121,3 +121,39 @@ if (JWTAuthToken) {
 ]
 ```
 
+### Запросить обратную связь
+```POST /ask_review/<int:pk>/```
+
+Возвращает список пользователей, которые должны будут оценить `<int:pk>` сотрудника
+```json
+[
+    {
+        "id": 3,
+        "username": "kkkk@afs.com",
+        "name": "Кирилл",
+        "surname": "Куликов",
+        "email": "kkkk@afs.com",
+        "position": "Джун",
+        "photo": "/static/photos/person1.jpeg",
+        "is_intern": true,
+        "is_head": false,
+        "is_awaiting_feedback": true,
+        "department": 1,
+        "feedback_viewed": null
+    },
+    {
+        "id": 4,
+        "username": "mmm@aadg.com",
+        "name": "Максим",
+        "surname": "Окулов",
+        "email": "mmm@aadg.com",
+        "position": "Мидл+",
+        "photo": "/static/photos/person2.jpeg",
+        "is_intern": false,
+        "is_head": false,
+        "is_awaiting_feedback": false,
+        "department": 1,
+        "feedback_viewed": null
+    }
+]
+```

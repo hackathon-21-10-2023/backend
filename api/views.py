@@ -1,13 +1,16 @@
+from django.db import transaction
 from rest_framework.exceptions import PermissionDenied, ValidationError
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 from django.contrib.auth import get_user_model
-from rest_framework import generics, permissions
+from rest_framework import generics, permissions, status
 from rest_framework.decorators import api_view, permission_classes
+from rest_framework.views import APIView
 
 from api.serializers import UserSerializer
 from . import models
-from .models import User
+from .exceptions import IsNotHeadError, DepartmentNotFoundError, NoHeadForDepartamentFoundError
+from .models import User, WaitForReview
 
 
 @api_view()
@@ -25,13 +28,37 @@ class SlavesListForItsHead(generics.ListAPIView):
         if head_id is None:
             raise ValidationError("No id of head was provided")
         head = get_object_or_404(User, pk=head_id)
-        if not head.is_head:
+
+        try:
+            queryset = head.slaves_for_head
+        except IsNotHeadError:
             raise PermissionDenied("Only head can list slaves")
-
-        head_department = head.department
-        if not head.department:
+        except DepartmentNotFoundError:
             raise PermissionDenied("Department not found for head")
+        return queryset
 
-        slaves_and_head_in_department = User.objects.filter(department=head_department)
-        slaves_in_department = slaves_and_head_in_department.exclude(pk=head.pk)
-        return slaves_in_department
+
+class AskReview(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = UserSerializer
+
+    def post(self, request, pk: int):
+        user = get_object_or_404(User, pk=pk)
+
+        user.is_awaiting_feedback = True
+        try:
+            reviewers = user.reviewers
+        except NoHeadForDepartamentFoundError:
+            return Response(status=status.HTTP_400_BAD_REQUEST, data={"detail": "Department not found for head for this intern"})
+
+        if len(reviewers) == 0:
+            return Response(status=status.HTTP_400_BAD_REQUEST,
+                            data={"detail": "Not for any reviewer"})
+
+        with transaction.atomic():
+            user_to_review, _ = WaitForReview.objects.get_or_create(to_user=user)
+            user_to_review.from_users.set(reviewers)
+            user.save()
+
+        serializer = self.serializer_class(reviewers, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)

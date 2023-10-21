@@ -5,6 +5,9 @@ from django.conf import settings
 from django.contrib.auth.models import AbstractUser
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
+from django.db.models import QuerySet
+
+from api.exceptions import IsNotHeadError, DepartmentNotFoundError, NoHeadForHeadError, NoHeadForDepartamentFoundError
 
 
 class Department(models.Model):
@@ -35,10 +38,37 @@ class User(AbstractUser):
     def __str__(self):
         return f"{self.name} {self.surname} <{self.email}>"
 
-    # save username as email
     def save(self, *args, **kwargs):
         self.username = self.email
         super().save(*args, **kwargs)
+
+    @property
+    def slaves_for_head(self) -> QuerySet["User"]:
+        if not self.is_head:
+            raise IsNotHeadError
+        head_department = self.department
+        if not head_department:
+            raise DepartmentNotFoundError
+        slaves_and_head_in_department = self.objects.filter(department=head_department)
+        return slaves_and_head_in_department.exclude(pk=self.pk)
+
+    @property
+    def reviewers(self) -> QuerySet["User"]:
+        if self.is_intern:
+            return self._meta.model.objects.filter(pk=self.head_of_employee.pk)  # преобразование instance в queryset
+        return self._meta.model.objects.filter(department=self.department).exclude(pk=self.pk)
+
+    @property
+    def head_of_employee(self) -> "User":
+        if self.is_head:
+            raise NoHeadForHeadError
+        user_department = self.department
+        if not user_department:
+            raise DepartmentNotFoundError
+        try:
+            return self._meta.model.objects.filter(department=user_department).get(is_head=True)
+        except User.DoesNotExist:
+            raise NoHeadForDepartamentFoundError
 
     class Meta:
         verbose_name = 'Пользователь'
@@ -61,6 +91,17 @@ class User(AbstractUser):
         }, settings.SECRET_KEY, algorithm='HS256')
 
         return token
+
+
+class WaitForReview(models.Model):
+    to_user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='wait_for_review_user',
+                                verbose_name='Пользователь, который запросил обратную связь')
+    from_users = models.ManyToManyField(User, verbose_name="Пользователи, которые должны дать обратную связь", related_name='wait_for_review_from_users', blank=True)
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name='Время создания')
+
+    class Meta:
+        verbose_name = "Ожидание обратной связи"
+        verbose_name_plural = "Ожидания обратных связей"
 
 
 class Feedback(models.Model):
