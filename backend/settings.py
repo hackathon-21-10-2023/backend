@@ -26,6 +26,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "api.apps.ApiConfig",
+    'chat_gpt.apps.ChatGptConfig'
 ]
 
 MIDDLEWARE = [
