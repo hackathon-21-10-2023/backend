@@ -1,4 +1,4 @@
-from rest_framework.exceptions import PermissionDenied
+from rest_framework.exceptions import PermissionDenied, ValidationError
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 from django.contrib.auth import get_user_model
@@ -16,12 +16,14 @@ def health_check_view(request):
     return Response({"health": "OK"})
 
 
-class SlavesListForItsHead(generics.ListCreateAPIView):
+class SlavesListForItsHead(generics.ListAPIView):
     permission_classes = [permissions.IsAuthenticated]
     serializer_class = UserSerializer
 
     def get_queryset(self):
-        head_id = self.kwargs['pk']
+        head_id = self.kwargs.get('pk', None)
+        if head_id is None:
+            raise ValidationError("No id of head was provided")
         head = get_object_or_404(User, pk=head_id)
         if not head.is_head:
             raise PermissionDenied("Only head can list slaves")
