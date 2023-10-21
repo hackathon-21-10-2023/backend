@@ -14,6 +14,9 @@ class Department(models.Model):
         verbose_name = 'Отдел'
         verbose_name_plural = 'Отделы'
 
+    def __str__(self):
+        return str(self.name)
+
 
 class User(AbstractUser):
     name = models.CharField(max_length=100, verbose_name='Имя')
@@ -31,6 +34,11 @@ class User(AbstractUser):
 
     def __str__(self):
         return f"{self.name} {self.surname} <{self.email}>"
+
+    # save username as name+surname+email
+    def save(self, *args, **kwargs):
+        self.username = f"{self.name} {self.surname} <{self.email}>"
+        super().save(*args, **kwargs)
 
     class Meta:
         verbose_name = 'Пользователь'
