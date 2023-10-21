@@ -16,7 +16,7 @@ class Command(BaseCommand):
                 settings.DEBUG
                 and not User.objects.filter(username='admin').exists()
             ):
-                User.objects.create_superuser(username='admin', password='admin')
+                User.objects.create_superuser(username='admin', password='admin', email='admin@example.com', department=None, position='Admin', photo=None)
                 self.stdout.write(
                     self.style.SUCCESS('Superuser `admin` created successfully!')
                 )
