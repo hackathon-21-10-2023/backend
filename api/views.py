@@ -62,3 +62,11 @@ class AskReview(APIView):
 
         serializer = self.serializer_class(reviewers, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class GetMe(generics.RetrieveAPIView):
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = UserSerializer
+
+    def get_object(self):
+        return self.request.user

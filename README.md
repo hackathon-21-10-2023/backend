@@ -5,7 +5,7 @@ python manage.py create_default_superuser
 ```
 
 
-# Документация по беку
+# Документация по беку v1
 
 ## Доступна автодокументация
 - Swagger: /api/v1/swagger/
@@ -156,4 +156,25 @@ if (JWTAuthToken) {
         "feedback_viewed": null
     }
 ]
+```
+
+
+### Информация о пользователе, получаемая из токена
+```GET /get_me/```
+
+```json
+{
+  "id": 4,
+  "username": "mmm@aadg.com",
+  "name": "Максим",
+  "surname": "Окулов",
+  "email": "mmm@aadg.com",
+  "position": "Мидл+",
+  "photo": "http://127.0.0.1:8000/static/photos/person2.jpeg",
+  "is_intern": false,
+  "is_head": false,
+  "is_awaiting_feedback": false,
+  "department": 1,
+  "feedback_viewed": null
+}
 ```
