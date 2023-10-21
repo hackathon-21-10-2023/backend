@@ -7,6 +7,11 @@ python manage.py create_default_superuser
 
 # Документация по беку
 
+## Доступна автодокументация
+- Swagger: /api/v1/swagger/
+- redoc: /api/v1/redoc/
+
+
 ### Авторизация
 Мы используем JWT токены для авторизации.
 Получить токен можно так:
@@ -76,3 +81,43 @@ if (JWTAuthToken) {
 
 Хранить токен можешь как угодно, в кукисах, в локалсторадже, да хоть в блокнот запиши, главное передай его при 
 запросе на API
+
+
+
+### Получение подчиненных руководителя
+```GET /list_slaves_of_head/<int:pk>/```
+
+Ответ:
+```json
+[
+  {
+    "id": 3,
+    "username": "kkkk@afs.com",
+    "name": "Кирилл",
+    "surname": "Куликов",
+    "email": "kkkk@afs.com",
+    "position": "Джун",
+    "photo": "http://127.0.0.1:8000/static/photos/person1.jpeg",
+    "is_intern": false,
+    "is_head": false,
+    "is_awaiting_feedback": false,
+    "department": 1,
+    "feedback_viewed": null
+  },
+  {
+    "id": 4,
+    "username": "mmm@aadg.com",
+    "name": "Максим",
+    "surname": "Окулов",
+    "email": "mmm@aadg.com",
+    "position": "Мидл+",
+    "photo": "http://127.0.0.1:8000/static/photos/person2.jpeg",
+    "is_intern": false,
+    "is_head": false,
+    "is_awaiting_feedback": false,
+    "department": 1,
+    "feedback_viewed": null
+  }
+]
+```
+
