@@ -14,6 +14,15 @@ class LoginSerializer(serializers.Serializer):
     # Ignore these fields if they are included in the request.
     username = serializers.CharField(max_length=255, read_only=True)
     token = serializers.CharField(max_length=255, read_only=True)
+    name = serializers.CharField(read_only=True)
+    surname = serializers.CharField(read_only=True)
+    department = serializers.CharField(read_only=True)
+    position = serializers.CharField(read_only=True)
+    photo = serializers.CharField(read_only=True)
+    is_intern = serializers.BooleanField(read_only=True)
+    is_head = serializers.BooleanField(read_only=True)
+    is_awaiting_feedback = serializers.BooleanField(read_only=True)
+    feedback_viewed = serializers.BooleanField(read_only=True)
 
     def validate(self, data):
         """
@@ -46,4 +55,14 @@ class LoginSerializer(serializers.Serializer):
 
         return {
             'token': user.token,
+            'name': user.name,
+            'surname': user.surname,
+            'email': user.email,
+            'department': user.department,
+            'position': user.position,
+            'photo': user.photo,
+            'is_intern': user.is_intern,
+            'is_head': user.is_head,
+            'is_awaiting_feedback': user.is_awaiting_feedback,
+            'feedback_viewed': user.feedback_viewed
         }

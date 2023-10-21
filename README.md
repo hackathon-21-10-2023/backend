@@ -49,19 +49,19 @@ python manage.py create_default_superuser
  
 const JWTAuthToken = getCookie('JWTAuthToken');
  
-    const axiosJWT = axios.create({
-        headers: {
-            "Content-Type": "application/json",
-            "Authorization": "Bearer " + JWTAuthToken.toString(),
-        },
-    });
- 
-    if (JWTAuthToken) {
- 
- 
-    } else {
-        console.log("Not auth!");
-    }
+const axiosJWT = axios.create({
+    headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer " + JWTAuthToken.toString(),
+    },
+});
+
+if (JWTAuthToken) {
+
+
+} else {
+    console.log("Not auth!");
+}
  
 ```
 
