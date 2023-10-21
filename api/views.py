@@ -5,8 +5,8 @@ from rest_framework import generics, permissions
 from rest_framework.decorators import api_view, permission_classes
 
 from api.serializers import UserSerializer
-
-User = get_user_model()
+from . import models
+from .models import User
 
 
 @api_view()
@@ -29,6 +29,6 @@ class SlavesListForItsHead(generics.ListCreateAPIView):
         if not head.department:
             return Response(status=404, data={"detail": "Department not found for head"})
 
-        slaves_and_head_in_department = head_department.users
+        slaves_and_head_in_department = User.objects.filter(department=head_department)
         slaves_in_department = slaves_and_head_in_department.exclude(pk=head.pk)
         return self.serializer_class(slaves_in_department)
