@@ -19,7 +19,16 @@ python manage.py create_default_superuser
 Ответ:
 ```json
 {
-    "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6MSwiZXhwIjoxNzAzMDg4NzYwfQ.uOopMGkok26XfLjDG0o5xykHQPgP-N-pKpX49wSjei8"
+    "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6MSwiZXhwIjoxNzAzMDkwMjM1fQ.0lp7gTO7U5tq-DiMxq7miz99m_uRdLQo5tEYgmqTRns",
+    "name": "",
+    "surname": "",
+    "department": null,
+    "position": "Главный долбаеб",
+    "photo": "",
+    "is_intern": false,
+    "is_head": true,
+    "is_awaiting_feedback": true,
+    "feedback_viewed": null
 }
 ```
 
