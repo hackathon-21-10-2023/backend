@@ -84,10 +84,11 @@ class Feedback(models.Model):
     def save(
             self, force_insert=False, force_update=False, using=None, update_fields=None
     ):
-        self.score_tone = 0
-        for item in self.feedback_items.all():
-            self.score_tone += item.score_tone
-        self.score_tone /= len(self.feedback_items.all())
+        if self.pk:
+            self.score_tone = 0
+            for item in self.feedback_items.all():
+                self.score_tone += item.score_tone
+            self.score_tone /= len(self.feedback_items.all())
         super().save()
 
 
