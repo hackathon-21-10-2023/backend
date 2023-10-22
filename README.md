@@ -12,7 +12,7 @@ python manage.py create_default_superuser
 - redoc: /api/v1/redoc/
 
 
-### Авторизация
+### аутентификация
 Мы используем JWT токены для авторизации.
 Получить токен можно так:
 
@@ -28,7 +28,7 @@ python manage.py create_default_superuser
     "name": "",
     "surname": "",
     "department": null,
-    "position": "Главный долбаеб",
+    "position": "Главный инженер по разработке",
     "photo": "",
     "is_intern": false,
     "is_head": true,
@@ -159,7 +159,7 @@ if (JWTAuthToken) {
 ```
 
 
-### Информация о пользователе (авторизация по JWT)
+### Информация о пользователе (аутентификация по JWT)
 ```GET /get_me/```
 
 Ответ:
@@ -180,7 +180,7 @@ if (JWTAuthToken) {
 }
 ```
 
-### Список пользователей, которых нужно оценить (авторизация по JWT) 
+### Список пользователей, которых нужно оценить (аутентификация по JWT) 
 ```GET /list_need_to_review_users/```
 
 Ответ:
@@ -221,76 +221,100 @@ if (JWTAuthToken) {
 ]
 ```
 
-### Список всех общих отзывов о сотруднике
+### Вывод агрегированного отзыва c айди `pk` об одном пользователе (аутентификация по JWT)
 
-```GET /review/detailed_list/for/<int:employee_id>/```
+```GET /review/<int:pk>/```
 
 Ответ:
 ```json
+{
+  "id": 1,
+  "to_user": {
+    "id": 2,
+    "username": "kkkkk@kkkk.com",
+    "name": "Kirill",
+    "surname": "Kulikov",
+    "email": "kkkkk@kkkk.com",
+    "position": "Python",
+    "photo": "http://127.0.0.1:8000/static/photos/person4_DdBaha4.jpeg",
+    "is_intern": false,
+    "is_head": false,
+    "is_awaiting_feedback": true,
+    "department": null,
+    "feedback_viewed": null
+  },
+  "feedbacks": [
+    {
+      "id": 1,
+      "to_user": {
+        "id": 2,
+        "username": "kkkkk@kkkk.com",
+        "name": "Kirill",
+        "surname": "Kulikov",
+        "email": "kkkkk@kkkk.com",
+        "position": "Python",
+        "photo": "http://127.0.0.1:8000/static/photos/person4_DdBaha4.jpeg",
+        "is_intern": false,
+        "is_head": false,
+        "is_awaiting_feedback": true,
+        "department": null,
+        "feedback_viewed": null
+      }
+    },
+    {
+      "id": 2,
+      "to_user": {
+        "id": 2,
+        "username": "kkkkk@kkkk.com",
+        "name": "Kirill",
+        "surname": "Kulikov",
+        "email": "kkkkk@kkkk.com",
+        "position": "Python",
+        "photo": "http://127.0.0.1:8000/static/photos/person4_DdBaha4.jpeg",
+        "is_intern": false,
+        "is_head": false,
+        "is_awaiting_feedback": true,
+        "department": null,
+        "feedback_viewed": null
+      }
+    }
+  ],
+  "created_at": "2023-10-22T12:26:05.976168Z",
+  "score": 2,
+  "score_as_human": "плохо",
+  "text": null,
+  "score_tone": null,
+  "is_reviewed_by_gpt": false
+}
+```
+
+### Получение списка отзывов, которые принадлежат `employee_id`
+```GET /review/list/for/<int:employee_id>/```
+
+```json
 [
   {
-    "feedback_items": [
-      {
-        "metric_title": "участие в корпоративной жизни компании",
-        "text": "bad",
-        "score_tone": null,
-        "score_tone_as_human": "<нет оценки>",
-        "score": 2,
-        "score_as_human": "плохо",
-        "from_user": "Кирилл Куликов",
-        "form_user_id": 7
-      },
-      {
-        "metric_title": "участие в рабочих задачах",
-        "text": "cool",
-        "score_tone": null,
-        "score_tone_as_human": "<нет оценки>",
-        "score": 5,
-        "score_as_human": "отлично",
-        "from_user": "Кирилл Куликов",
-        "form_user_id": 7
-      }
-    ],
-    "text": null,
-    "score": 4,
-    "score_as_human": "хорошо",
-    "created_at": "2023-10-22T10:21:03.516935Z"
-  },
-  {
-    "feedback_items": [
-      {
-        "metric_title": "участие в корпоративной жизни компании",
-        "text": "sghwgiwhioeghiowehgewhgoiewgh",
-        "score_tone": null,
-        "score_tone_as_human": "<нет оценки>",
-        "score": 1,
-        "score_as_human": "ужасно",
-        "from_user": "Максим Окулов",
-        "form_user_id": 4
-      },
-      {
-        "metric_title": "участие в рабочих задачах",
-        "text": "gioerhiguherwghrewhgrwgugiowrgijo",
-        "score_tone": null,
-        "score_tone_as_human": "<нет оценки>",
-        "score": 5,
-        "score_as_human": "отлично",
-        "from_user": "Максим Окулов",
-        "form_user_id": 4
-      }
-    ],
-    "text": null,
-    "score": 3,
-    "score_as_human": "удовлетворительно",
-    "created_at": "2023-10-22T10:28:06.888995Z"
+    "id": 1,
+    "to_user": {
+      "id": 2,
+      "username": "kkkkk@kkkk.com",
+      "name": "Kirill",
+      "surname": "Kulikov",
+      "email": "kkkkk@kkkk.com",
+      "position": "Python",
+      "photo": "http://127.0.0.1:8000/static/photos/person4_DdBaha4.jpeg",
+      "is_intern": false,
+      "is_head": false,
+      "is_awaiting_feedback": true,
+      "department": null,
+      "feedback_viewed": null
+    },
+    "created_at": "2023-10-22T12:26:05.976168Z"
   }
 ]
 ```
 
-Ты уж извини, Егор, но придется немного сортировать метрики, как ключ сортировки я оставил тебе form_user_id, извини, что костыляю.
-
-
-### Создать отзыв (авторизация по JWT)
+### Создать отзыв (аутентификация по JWT)
 
 ```POST /feedback_create/```
 
