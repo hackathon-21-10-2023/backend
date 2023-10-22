@@ -112,6 +112,13 @@ class FeedbackForUser(models.Model):
     text = models.TextField(verbose_name='Текст', null=True, blank=True)
     score_tone = models.IntegerField(verbose_name='Тональность оценки',
                                      validators=[MinValueValidator(-1), MaxValueValidator(1)], null=True, blank=True)
+    score = models.IntegerField(verbose_name='Оценка', validators=[MinValueValidator(1), MaxValueValidator(5)],
+                                null=True, blank=True)
+    text = models.TextField(verbose_name='Текст', null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name='Время создания')
+    score_tone = models.IntegerField(verbose_name='Тональность оценки',
+                                     validators=[MinValueValidator(-1), MaxValueValidator(1)], null=True, blank=True)
+    is_reviewed_by_gpt = models.BooleanField(default=False)
 
 
 class Feedback(models.Model):

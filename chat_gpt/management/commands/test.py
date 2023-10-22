@@ -8,11 +8,6 @@ openai.api_base = "http://127.0.0.1:1337/v1"
 
 
 def generate_text():
-    """{{"worker":  Кирилл Куликов, "metrics": [{{"metrics_id": 0, "score": 2, "text": "Сотрудник выполнил лишь 26% от
-поставленных задач. Выполнял задачи долго."}}, {{"metrics_id": 1, "score": 5, "text": " Сотрудник организовывает
-мероприятие "пятница настольных игр". Это делает команду дружнее, что соответствует корпоративным ценностям."}}]}}
-
-"""
     metrics = {"metrics": [
         {"id": 0, "name": "Участие в рабочих задачах"},
         {"id": 1, "name": "Участие в корпоративной жизни компании"},
@@ -79,14 +74,11 @@ def generate_text():
 
 def ask_gpt():
     text = generate_text()
-    print(text)
     response = g4f.ChatCompletion.create(
         model="gpt-3.5-turbo",
         messages=[{"role": "user", "content": text}],
-        stream=True
     )
-    for message in response:
-        print(message, flush=True, end='')
+    print(response)
 
 
 class Command(BaseCommand):
