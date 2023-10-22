@@ -12,6 +12,7 @@ openai.api_base = "http://127.0.0.1:1337/v1"
 def ask_gpt(feedback_for_user_id):
     feedback_for_user = FeedbackForUser.objects.get(id=feedback_for_user_id)
     text = generate_text(feedback_for_user)
+    print(f"{text=}")
     response = g4f.ChatCompletion.create(
         model="gpt-3.5-turbo",
         messages=[{"role": "user", "content": text}],
