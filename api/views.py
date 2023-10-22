@@ -170,6 +170,7 @@ class ReviewCreateView(generics.CreateAPIView):
                 aggregated_feedback.feedbacks.set(feedbacks)
                 print(f"сотрудник {to_user} получил отзывы со всех коллег – {aggregated_feedback}")
                 data = ask_gpt(aggregated_feedback.id)
+                print("data from GPT:", data)
                 data = json.loads(data)
                 aggregated_feedback.text = data.get('main', 'Ошибка!')
                 aggregated_feedback.score = round(data.get('score', 5))
