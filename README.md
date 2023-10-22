@@ -221,7 +221,7 @@ if (JWTAuthToken) {
 
 ### Общий отзыв
 
-```api/v1/review/list/{employee_id}/```
+```api/v1/review/{employee_id}/```
 
 Ответ:
 ```json

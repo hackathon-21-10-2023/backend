@@ -37,6 +37,6 @@ urlpatterns = [
     path("get_me/", views.GetMe.as_view()),
     path("list_need_to_review_users/", views.ListNeedToReviewUsers.as_view()),
     path("metric/list/", views.MetricListView.as_view()),
-    path("review/list/<int:employee_id>/", views.ReviewListView.as_view())
+    path("review/<int:employee_id>/", views.ReviewListView.as_view())
 
 ]
