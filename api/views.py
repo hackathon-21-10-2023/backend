@@ -8,9 +8,9 @@ from rest_framework import generics, permissions, status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.views import APIView
 
-from api.serializers import UserSerializer, MetricSerializer
+from api.serializers import UserSerializer, MetricSerializer, FeedbackSerializer
 from .exceptions import IsNotHeadError, DepartmentNotFoundError, NoHeadForDepartamentFoundError
-from .models import User, WaitForReview, Metric
+from .models import User, WaitForReview, Metric, Feedback
 
 
 @api_view()
@@ -89,3 +89,20 @@ class MetricListView(generics.ListAPIView):
 
     def get_queryset(self):
         return Metric.objects.all()
+
+
+class ReviewListView(generics.ListAPIView):
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = FeedbackSerializer
+
+    def get_queryset(self):
+        employee_id = self.kwargs.get('employee_id', None)
+        if not employee_id:
+            return Response(status=status.HTTP_400_BAD_REQUEST,
+                            data={"detail": "Employee id was not passed!"})
+        employee = User.objects.filter(id=employee_id).last()
+        if not employee:
+            return Response(status=status.HTTP_400_BAD_REQUEST,
+                            data={"detail": "This employee does not exist!"})
+
+        return Feedback.objects.filter(to_user=employee)

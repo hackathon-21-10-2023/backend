@@ -133,18 +133,60 @@ class Feedback(models.Model):
             self.score_tone /= len(self.feedback_items.all())
         super().save()
 
+    def score_as_human(self):
+        if self.score == 1:
+            return 'ужасно'
+        elif self.score == 2:
+            return 'плохо'
+        elif self.score == 3:
+            return 'удовлетворительно'
+        elif self.score == 4:
+            return 'хорошо'
+        elif self.score == 5:
+            return 'отлично'
+
 
 class FeedbackItem(models.Model):
     metric = models.ForeignKey(to='Metric', on_delete=models.CASCADE, null=True)
     text = models.TextField(verbose_name='Текст')
     score_tone = models.IntegerField(verbose_name='Тональность оценки',
                                      validators=[MinValueValidator(-1), MaxValueValidator(1)])
+    score = models.IntegerField(verbose_name='Оценка', default=5)
     feedback = models.ForeignKey(Feedback, on_delete=models.CASCADE, related_name='feedback_items',
-                                 verbose_name='Общий отзыв')
+                                 verbose_name='Общий отзыв', )
 
     class Meta:
         verbose_name = 'Отзыв'
         verbose_name_plural = 'Отзывы'
+
+    def metric_title(self):
+        return self.metric.title if self.metric else ''
+
+    def score_tone_as_human(self):
+        if self.score_tone == 0:
+            return 'нейтральная'
+        elif self.score_tone > 0:
+            return 'положительная'
+        elif self.score_tone < 0:
+            return 'негативная'
+
+    def score_as_human(self):
+        if self.score == 1:
+            return 'ужасно'
+        elif self.score == 2:
+            return 'плохо'
+        elif self.score == 3:
+            return 'удовлетворительно'
+        elif self.score == 4:
+            return 'хорошо'
+        elif self.score == 5:
+            return 'отлично'
+
+    def from_user(self):
+        return f'{self.feedback.from_user.name.capitalize()} {self.feedback.from_user.surname.capitalize()}'
+
+    def form_user_id(self):
+        return self.feedback.from_user.id
 
     def __str__(self):
         return f"{self.metric.title if self.metric else ''} ({self.feedback.from_user} -> {self.feedback.to_user})"
