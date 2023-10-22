@@ -169,22 +169,26 @@ class ReviewCreateView(generics.CreateAPIView):
                 aggregated_feedback = FeedbackForUser.objects.create(score=average_score)
                 aggregated_feedback.feedbacks.set(feedbacks)
                 print(f"сотрудник {to_user} получил отзывы со всех коллег – {aggregated_feedback}")
-                data = ask_gpt(aggregated_feedback.id)
-                print("data from GPT:", data)
-                data = json.loads(data)
-                aggregated_feedback.text = data.get('main', 'Ошибка!')
-                aggregated_feedback.score = round(data.get('score', 5))
-                tonal_data = data.get('tonal', None)
-                if tonal_data:
-                    for t in tonal_data:
-                        metric_list = t.get('metrik_list')
-                        for metric in metric_list:
-                            item_id = metric.get('item_id', None)
-                            if not item_id:
-                                raise ValidationError('item not found!')
-                            feedback_item = FeedbackItem.objects.get(id=item_id)
-                            feedback_item.score_tone = metric.get('score')
-                            feedback_item.save()
+
+                try:
+                    data = ask_gpt(aggregated_feedback.id)
+                    print("data from GPT:", data)
+                    data = json.loads(data)
+                    aggregated_feedback.text = data.get('main', 'Ошибка!')
+                    aggregated_feedback.score = round(data.get('score', 5))
+                    tonal_data = data.get('tonal', None)
+                    if tonal_data:
+                        for t in tonal_data:
+                            metric_list = t.get('metrik_list')
+                            for metric in metric_list:
+                                item_id = metric.get('item_id', None)
+                                if not item_id:
+                                    raise ValidationError('item not found!')
+                                feedback_item = FeedbackItem.objects.get(id=item_id)
+                                feedback_item.score_tone = metric.get('score')
+                                feedback_item.save()
+                except Exception as e:
+                    raise ValidationError(e)
 
                 aggregated_feedback.save()
         return Response({"status": "ok"}, status=status.HTTP_201_CREATED)
