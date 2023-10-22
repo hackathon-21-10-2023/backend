@@ -2,7 +2,7 @@ from django.contrib.auth import get_user_model
 from rest_framework import serializers
 from rest_framework.generics import get_object_or_404
 
-from api.models import Metric, FeedbackItem, Feedback
+from api.models import Metric, FeedbackItem, Feedback, FeedbackForUser
 
 User = get_user_model()
 
@@ -54,3 +54,21 @@ class FeedbackItemCreateSerializer(serializers.Serializer):
 class FeedbackCreateSerializer(serializers.Serializer):
     feedback_items = FeedbackItemCreateSerializer(many=True, required=True)
     to_user_id = serializers.IntegerField(required=True)
+
+
+class FeedbackForUserListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = FeedbackForUser
+        fields = ['id', 'to_user', 'created_at']
+
+    to_user = UserSerializer(read_only=True)
+
+
+class FeedbackForUserDetailedSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = FeedbackForUser
+        fields = ['id', 'to_user', 'feedbacks', 'created_at', 'score', 'score_as_human', 'text', 'score_tone', 'is_reviewed_by_gpt']
+
+    to_user = UserSerializer(read_only=True)
+    feedbacks = FeedbackSerializer(many=True, read_only=True)
+

@@ -39,7 +39,7 @@ urlpatterns = [
     path("get_me/", views.GetMe.as_view()),
     path("list_need_to_review_users/", views.ListNeedToReviewUsers.as_view()),
     path("metric/list/", views.MetricListView.as_view()),
-    path("review/detailed_list/<int:pk>/", views.ReviewDetailedListView.as_view()),
-    path("review/compressed_list/for/<int:employee_id>/", views.ReviewCompressedListView.as_view()),
+    path("review/<int:pk>/", views.FeedbackForUserDetailedView.as_view()),
+    path("review/list/for/<int:employee_id>/", views.FeedbackForUserListView.as_view()),
     path("feedback_create/", views.ReviewCreateView.as_view()),
 ]
