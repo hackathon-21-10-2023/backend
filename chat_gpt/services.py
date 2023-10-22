@@ -17,43 +17,55 @@ def ask_gpt():
 
 
 def generate_text(feedback: Feedback):
-    metrics = {'metrics': []}
+    metrics = {"metrics": []}
     for metric in Metric.objects.all():
-        metrics['metrics'].append(
+        metrics["metrics"].append(
             {"id": metric.id, "name": metric.title},
         )
 
-    worker_name = f'{feedback.to_user.name.capitalize()} {feedback.to_user.surname.capitalize()}'
+    worker_name = f"{feedback.to_user.name.capitalize()} {feedback.to_user.surname.capitalize()}"
 
     data = []
     feedback_items = FeedbackItem.objects.filter(feedback=feedback)
     for item in feedback_items:
-        data.append(
-            {"author": 123}
-        )
+        data.append({"author": 123})
     data = [
         {
             "author": "Максим Окулов",
             "metrics": [
-                {"metrics_id": 0, "score": 3, "text": "Сотрудник был мотивирован, но не всегда выполнял задачи "
-                                                      "корректно из-за плохой коммуникации."},
-                {"metrics_id": 1, "score": 2, "text": "Сотрудник не предлагал ничего нового, а просто плыл по "
-                                                      "течению."},
-            ]
+                {
+                    "metrics_id": 0,
+                    "score": 3,
+                    "text": "Сотрудник был мотивирован, но не всегда выполнял задачи "
+                    "корректно из-за плохой коммуникации.",
+                },
+                {
+                    "metrics_id": 1,
+                    "score": 2,
+                    "text": "Сотрудник не предлагал ничего нового, а просто плыл по " "течению.",
+                },
+            ],
         },
         {
             "author": "Кирилл Куликов",
             "metrics": [
-                {"metrics_id": 0, "score": 2, "text": "Сотрудник выполнил лишь 26% от поставленных задач. Выполнял "
-                                                      "задачи долго."},
-                {"metrics_id": 1, "score": 5, "text": "Cотрудник организовывает мероприятие 'пятница настольных игр'. "
-                                                      "Это делает команду дружнее, что соответствует корпоративным "
-                                                      "ценностям."},
-            ]
+                {
+                    "metrics_id": 0,
+                    "score": 2,
+                    "text": "Сотрудник выполнил лишь 26% от поставленных задач. Выполнял " "задачи долго.",
+                },
+                {
+                    "metrics_id": 1,
+                    "score": 5,
+                    "text": "Cотрудник организовывает мероприятие 'пятница настольных игр'. "
+                    "Это делает команду дружнее, что соответствует корпоративным "
+                    "ценностям.",
+                },
+            ],
         },
     ]
 
-    text = f'''Ты ассистент, который должен анализировать отзывы авторов о стажерах. Я буду предоставлять тебе данные в таком 
+    text = f"""Ты ассистент, который должен анализировать отзывы авторов о стажерах. Я буду предоставлять тебе данные в таком 
     формате: 
 
 [NAME OF FORKER]: Имя стажера, о котором пишут отзыв, это не тот, о котором пишут отзывы. 
@@ -86,5 +98,5 @@ def generate_text(feedback: Feedback):
 "metrik_list": ["id": АЙДИ МЕТРИКИ, "score": Оценка тональности метрики]]}}, "score": ОБЩИЙ БАЛЛ}} 
 
 
-'''
+"""
     return text

@@ -5,12 +5,27 @@ from .models import User, Department, Feedback, FeedbackItem, WaitForReview, Met
 
 @admin.register(User)
 class CustomUserAdmin(admin.ModelAdmin):
-    list_display = ('email', 'department', 'position', 'is_intern', 'is_head', 'is_awaiting_feedback')
-    list_filter = ('department', 'position', 'is_intern', 'is_head', 'is_awaiting_feedback')
+    list_display = ("email", "department", "position", "is_intern", "is_head", "is_awaiting_feedback")
+    list_filter = ("department", "position", "is_intern", "is_head", "is_awaiting_feedback")
     fieldsets = (
-        (None, {'fields': (
-        'email', 'password', 'name', 'surname', 'photo', 'department', 'position', 'is_intern', 'is_head',
-        'is_awaiting_feedback', 'feedback_viewed')}),
+        (
+            None,
+            {
+                "fields": (
+                    "email",
+                    "password",
+                    "name",
+                    "surname",
+                    "photo",
+                    "department",
+                    "position",
+                    "is_intern",
+                    "is_head",
+                    "is_awaiting_feedback",
+                    "feedback_viewed",
+                )
+            },
+        ),
     )
 
 

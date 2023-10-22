@@ -1,7 +1,5 @@
 import g4f
 import openai
-# API_KEY = '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'
-# openai.api_key = API_KEY
 from django.core.management import BaseCommand
 
 from api.models import FeedbackForUser, Metric, FeedbackItem
@@ -21,29 +19,29 @@ def ask_gpt(feedback_for_user_id):
 
 
 def generate_text(feedback_for_user: FeedbackForUser):
-    metrics = {'metrics': []}
+    metrics = {"metrics": []}
     for metric in Metric.objects.all():
-        metrics['metrics'].append(
+        metrics["metrics"].append(
             {"id": metric.id, "name": metric.title},
         )
     feedback = feedback_for_user.feedbacks.last()
-    worker_name = f'{feedback.to_user.name.capitalize()} {feedback.to_user.surname.capitalize()}'
+    worker_name = f"{feedback.to_user.name.capitalize()} {feedback.to_user.surname.capitalize()}"
 
     data = []
     feedbacks = feedback_for_user.feedbacks.all()
     for feedback in feedbacks:
         i = {
-            "author": f'{feedback.from_user.name.capitalize()} {feedback.from_user.surname.capitalize()}',
-            'metrics': []
+            "author": f"{feedback.from_user.name.capitalize()} {feedback.from_user.surname.capitalize()}",
+            "metrics": [],
         }
         feedback_items = FeedbackItem.objects.filter(feedback=feedback)
         for feedback_item in feedback_items:
-            i['metrics'].append(
+            i["metrics"].append(
                 {
                     "metrics_id": feedback_item.metric.id,
-                    'score': feedback_item.score,
-                    'text': feedback_item.text,
-                    'feedback_item_id': feedback_item.id
+                    "score": feedback_item.score,
+                    "text": feedback_item.text,
+                    "feedback_item_id": feedback_item.id,
                 }
             )
 
@@ -51,7 +49,7 @@ def generate_text(feedback_for_user: FeedbackForUser):
     # print(metrics)
     # print(data)
 
-    text = f'''Ты ассистент, который должен анализировать отзывы авторов о стажерах. Я буду предоставлять тебе данные в таком 
+    text = f"""Ты ассистент, который должен анализировать отзывы авторов о стажерах. Я буду предоставлять тебе данные в таком 
     формате: 
 
 [NAME OF FORKER]: Имя стажера, о котором пишут отзыв, это не тот, о котором пишут отзывы. 
@@ -84,11 +82,10 @@ def generate_text(feedback_for_user: FeedbackForUser):
 "metrik_list": ["id": АЙДИ МЕТРИКИ, "score": Оценка тональности метрики, "item_id": АЙДИ ОТЗЫВА ВНУТРИ СИСТЕМЫ]]}}, "score": ОБЩИЙ БАЛЛ}} 
 
 
-'''
+"""
     return text
 
 
 class Command(BaseCommand):
-
     def handle(self, *args, **options):
         print(ask_gpt(1))

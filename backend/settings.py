@@ -26,11 +26,11 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "corsheaders",
-    'drf_yasg',
+    "drf_yasg",
     "api.apps.ApiConfig",
-    'chat_gpt.apps.ChatGptConfig',
-    'auth_token.apps.AuthTokenConfig',
-    'rest_framework'
+    "chat_gpt.apps.ChatGptConfig",
+    "auth_token.apps.AuthTokenConfig",
+    "rest_framework",
 ]
 
 MIDDLEWARE = [
@@ -49,8 +49,7 @@ ROOT_URLCONF = "backend.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [BASE_DIR / "templates"]
-        ,
+        "DIRS": [BASE_DIR / "templates"],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -95,15 +94,11 @@ AUTH_PASSWORD_VALIDATORS = [
 
 
 REST_FRAMEWORK = {
-    'DEFAULT_PERMISSION_CLASSES': (
-        'rest_framework.permissions.IsAuthenticated',
-        ),
-    'DEFAULT_AUTHENTICATION_CLASSES': (
-        'auth_token.authentication.JWTAuthentication',
-        )
+    "DEFAULT_PERMISSION_CLASSES": ("rest_framework.permissions.IsAuthenticated",),
+    "DEFAULT_AUTHENTICATION_CLASSES": ("auth_token.authentication.JWTAuthentication",),
 }
 
-AUTH_USER_MODEL = 'api.User'
+AUTH_USER_MODEL = "api.User"
 
 
 LANGUAGE_CODE = "en-us"
@@ -121,15 +116,7 @@ STATICFILES_DIRS = [
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-SWAGGER_SETTINGS = {
-   'SECURITY_DEFINITIONS': {
-      'Bearer': {
-            'type': 'apiKey',
-            'name': 'Authorization',
-            'in': 'header'
-      }
-   }
-}
+SWAGGER_SETTINGS = {"SECURITY_DEFINITIONS": {"Bearer": {"type": "apiKey", "name": "Authorization", "in": "header"}}}
 
 BASE_URL_SWAGGER = getenv("BASE_URL_SWAGGER", "http://127.0.0.1:8000")
 

@@ -14,26 +14,33 @@ class Department(models.Model):
     name = models.CharField(max_length=100)
 
     class Meta:
-        verbose_name = 'Отдел'
-        verbose_name_plural = 'Отделы'
+        verbose_name = "Отдел"
+        verbose_name_plural = "Отделы"
 
     def __str__(self):
         return str(self.name)
 
 
 class User(AbstractUser):
-    name = models.CharField(max_length=100, verbose_name='Имя')
-    surname = models.CharField(max_length=100, verbose_name='Фамилия')
-    email = models.EmailField(unique=True, verbose_name='Email')
-    department = models.ForeignKey(Department, on_delete=models.CASCADE, related_name='users', verbose_name='Отдел',
-                                   null=True, blank=True)
-    position = models.CharField(max_length=100, verbose_name='Должность')
-    photo = models.ImageField(upload_to='static/photos', verbose_name='Фото', null=True, blank=True)
-    is_intern = models.BooleanField(default=False, verbose_name='Является стажером')
-    is_head = models.BooleanField(default=False, verbose_name='Является руководителем')
-    is_awaiting_feedback = models.BooleanField(default=False, verbose_name='Ожидает отзыва')
-    feedback_viewed = models.ForeignKey("Feedback", on_delete=models.CASCADE, related_name='feedback_viewed',
-                                        verbose_name='Просмотренные отзывы', null=True, blank=True)
+    name = models.CharField(max_length=100, verbose_name="Имя")
+    surname = models.CharField(max_length=100, verbose_name="Фамилия")
+    email = models.EmailField(unique=True, verbose_name="Email")
+    department = models.ForeignKey(
+        Department, on_delete=models.CASCADE, related_name="users", verbose_name="Отдел", null=True, blank=True
+    )
+    position = models.CharField(max_length=100, verbose_name="Должность")
+    photo = models.ImageField(upload_to="static/photos", verbose_name="Фото", null=True, blank=True)
+    is_intern = models.BooleanField(default=False, verbose_name="Является стажером")
+    is_head = models.BooleanField(default=False, verbose_name="Является руководителем")
+    is_awaiting_feedback = models.BooleanField(default=False, verbose_name="Ожидает отзыва")
+    feedback_viewed = models.ForeignKey(
+        "Feedback",
+        on_delete=models.CASCADE,
+        related_name="feedback_viewed",
+        verbose_name="Просмотренные отзывы",
+        null=True,
+        blank=True,
+    )
 
     def __str__(self):
         return f"{self.name} {self.surname} <{self.email}>"
@@ -71,8 +78,8 @@ class User(AbstractUser):
             raise NoHeadForDepartamentFoundError
 
     class Meta:
-        verbose_name = 'Пользователь'
-        verbose_name_plural = 'Пользователи'
+        verbose_name = "Пользователь"
+        verbose_name_plural = "Пользователи"
 
     @property
     def token(self):
@@ -85,20 +92,25 @@ class User(AbstractUser):
         """
         dt = datetime.now() + timedelta(days=60)
 
-        token = jwt.encode({
-            'id': self.pk,
-            'exp': int(dt.strftime('%s'))
-        }, settings.SECRET_KEY, algorithm='HS256')
+        token = jwt.encode({"id": self.pk, "exp": int(dt.strftime("%s"))}, settings.SECRET_KEY, algorithm="HS256")
 
         return token
 
 
 class WaitForReview(models.Model):
-    to_user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='wait_for_review_user',
-                                   verbose_name='Пользователь, который запросил обратную связь')
-    from_users = models.ManyToManyField(User, verbose_name="Пользователи, которые должны дать обратную связь",
-                                        related_name='wait_for_review_from_users', blank=True)
-    created_at = models.DateTimeField(auto_now_add=True, verbose_name='Время создания')
+    to_user = models.OneToOneField(
+        User,
+        on_delete=models.CASCADE,
+        related_name="wait_for_review_user",
+        verbose_name="Пользователь, который запросил обратную связь",
+    )
+    from_users = models.ManyToManyField(
+        User,
+        verbose_name="Пользователи, которые должны дать обратную связь",
+        related_name="wait_for_review_from_users",
+        blank=True,
+    )
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Время создания")
 
     class Meta:
         verbose_name = "Ожидание обратной связи"
@@ -106,24 +118,26 @@ class WaitForReview(models.Model):
 
 
 class FeedbackForUser(models.Model):
-    feedbacks = models.ManyToManyField("Feedback", verbose_name='Отзыв об одном сотруднике', related_name='feedbacks_for_user', blank=True)
-    created_at = models.DateTimeField(auto_now_add=True, verbose_name='Время создания')
-    score = models.IntegerField(verbose_name='Оценка', validators=[MinValueValidator(1), MaxValueValidator(5)], null=True, blank=True)
-    text = models.TextField(verbose_name='Текст', null=True, blank=True)
-    score_tone = models.IntegerField(verbose_name='Тональность оценки',
-                                     validators=[MinValueValidator(-1), MaxValueValidator(1)], null=True, blank=True)
+    feedbacks = models.ManyToManyField(
+        "Feedback", verbose_name="Отзыв об одном сотруднике", related_name="feedbacks_for_user", blank=True
+    )
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Время создания")
+    score = models.IntegerField(
+        verbose_name="Оценка", validators=[MinValueValidator(1), MaxValueValidator(5)], null=True, blank=True
+    )
+    text = models.TextField(verbose_name="Текст", null=True, blank=True)
+    score_tone = models.IntegerField(
+        verbose_name="Тональность оценки",
+        validators=[MinValueValidator(-1), MaxValueValidator(1)],
+        null=True,
+        blank=True,
+    )
     is_reviewed_by_gpt = models.BooleanField(default=False)
 
     def score_as_human(self):
         if self.score is None:
-            return '<нет оценки>'
-        score_map = {
-            1: 'ужасно',
-            2: 'плохо',
-            3: 'удовлетворительно',
-            4: 'хорошо',
-            5: 'отлично'
-        }
+            return "<нет оценки>"
+        score_map = {1: "ужасно", 2: "плохо", 3: "удовлетворительно", 4: "хорошо", 5: "отлично"}
         return score_map.get(self.score, f"нет описания оценки для {self.score}")
 
     @property
@@ -132,21 +146,21 @@ class FeedbackForUser(models.Model):
 
 
 class Feedback(models.Model):
-    to_user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='feedback_to_user',
-                                verbose_name='Пользователь')
-    from_user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='feedback_from_user',
-                                     verbose_name='Отправитель')
+    to_user = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name="feedback_to_user", verbose_name="Пользователь"
+    )
+    from_user = models.OneToOneField(
+        User, on_delete=models.CASCADE, related_name="feedback_from_user", verbose_name="Отправитель"
+    )
 
     class Meta:
-        verbose_name = 'Общий отзыв'
-        verbose_name_plural = 'Общие отзывы'
+        verbose_name = "Общий отзыв"
+        verbose_name_plural = "Общие отзывы"
 
     def __str__(self):
         return f"{self.from_user} -> {self.to_user}"
 
-    def save(
-        self, force_insert=False, force_update=False, using=None, update_fields=None
-    ):
+    def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
         if self.pk:
             self.score_tone = 0
             for item in self.feedback_items.all():
@@ -156,45 +170,47 @@ class Feedback(models.Model):
 
 
 class FeedbackItem(models.Model):
-    metric = models.ForeignKey(to='Metric', on_delete=models.CASCADE, null=True)
-    text = models.TextField(verbose_name='Текст')
-    score_tone = models.IntegerField(verbose_name='Тональность оценки',
-                                     validators=[MinValueValidator(-1), MaxValueValidator(1)], null=True, blank=True)
-    score = models.IntegerField(verbose_name='Оценка', default=5)
-    feedback = models.ForeignKey(Feedback, on_delete=models.CASCADE, related_name='feedback_items',
-                                 verbose_name='Общий отзыв', )
+    metric = models.ForeignKey(to="Metric", on_delete=models.CASCADE, null=True)
+    text = models.TextField(verbose_name="Текст")
+    score_tone = models.IntegerField(
+        verbose_name="Тональность оценки",
+        validators=[MinValueValidator(-1), MaxValueValidator(1)],
+        null=True,
+        blank=True,
+    )
+    score = models.IntegerField(verbose_name="Оценка", default=5)
+    feedback = models.ForeignKey(
+        Feedback,
+        on_delete=models.CASCADE,
+        related_name="feedback_items",
+        verbose_name="Общий отзыв",
+    )
 
     class Meta:
-        verbose_name = 'Отзыв'
-        verbose_name_plural = 'Отзывы'
+        verbose_name = "Отзыв"
+        verbose_name_plural = "Отзывы"
 
     def metric_title(self):
-        return self.metric.title if self.metric else ''
+        return self.metric.title if self.metric else ""
 
     def score_tone_as_human(self):
         if self.score_tone is None:
-            return '<нет оценки>'
+            return "<нет оценки>"
         if self.score_tone == 0:
-            return 'нейтральная'
+            return "нейтральная"
         elif self.score_tone > 0:
-            return 'положительная'
+            return "положительная"
         elif self.score_tone < 0:
-            return 'негативная'
+            return "негативная"
 
     def score_as_human(self):
         if self.score is None:
-            return '<нет оценки>'
-        score_map = {
-            1: 'ужасно',
-            2: 'плохо',
-            3: 'удовлетворительно',
-            4: 'хорошо',
-            5: 'отлично'
-        }
+            return "<нет оценки>"
+        score_map = {1: "ужасно", 2: "плохо", 3: "удовлетворительно", 4: "хорошо", 5: "отлично"}
         return score_map.get(self.score, f"нет описания оценки для {self.score}")
 
     def from_user(self):
-        return f'{self.feedback.from_user.name.capitalize()} {self.feedback.from_user.surname.capitalize()}'
+        return f"{self.feedback.from_user.name.capitalize()} {self.feedback.from_user.surname.capitalize()}"
 
     def form_user_id(self):
         return self.feedback.from_user.id
@@ -208,8 +224,8 @@ class Metric(models.Model):
     description = models.TextField()
 
     class Meta:
-        verbose_name = 'Метрика'
-        verbose_name_plural = 'Метрики'
+        verbose_name = "Метрика"
+        verbose_name_plural = "Метрики"
 
     def __str__(self):
         return self.title

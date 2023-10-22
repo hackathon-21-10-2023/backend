@@ -34,7 +34,7 @@ urlpatterns = [
     ),
     re_path(r"^redoc/$", schema_view.with_ui("redoc", cache_timeout=0), name="schema-redoc"),
     path("health_check/", views.health_check_view),
-    path('list_slaves_of_head/<int:pk>/', views.SlavesListForItsHead.as_view()),
+    path("list_slaves_of_head/<int:pk>/", views.SlavesListForItsHead.as_view()),
     path("ask_review/<int:pk>/", views.AskReview.as_view()),
     path("get_me/", views.GetMe.as_view()),
     path("list_need_to_review_users/", views.ListNeedToReviewUsers.as_view()),

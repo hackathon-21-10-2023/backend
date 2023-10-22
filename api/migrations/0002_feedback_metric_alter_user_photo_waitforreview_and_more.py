@@ -53,9 +53,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="user",
             name="photo",
-            field=models.ImageField(
-                blank=True, null=True, upload_to="static/photos", verbose_name="Фото"
-            ),
+            field=models.ImageField(blank=True, null=True, upload_to="static/photos", verbose_name="Фото"),
         ),
         migrations.CreateModel(
             name="WaitForReview",
@@ -71,9 +69,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "created_at",
-                    models.DateTimeField(
-                        auto_now_add=True, verbose_name="Время создания"
-                    ),
+                    models.DateTimeField(auto_now_add=True, verbose_name="Время создания"),
                 ),
                 (
                     "from_users",
@@ -162,9 +158,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "created_at",
-                    models.DateTimeField(
-                        auto_now_add=True, verbose_name="Время создания"
-                    ),
+                    models.DateTimeField(auto_now_add=True, verbose_name="Время создания"),
                 ),
                 (
                     "score",

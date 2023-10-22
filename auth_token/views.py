@@ -11,7 +11,6 @@ from auth_token.serializers import LoginSerializer
 
 
 class LoginByCredentials(APIView):
-
     permission_classes = [AllowAny]
     serializer_class = LoginSerializer
 

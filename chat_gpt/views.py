@@ -10,16 +10,10 @@ class AskGPTReview(APIView):
         employee = User.objects.filter(id=employee_id).last()
 
         if not employee:
-            return Response(
-                status=status.HTTP_400_BAD_REQUEST,
-                data={'details': 'this employee does not exist!'}
-            )
+            return Response(status=status.HTTP_400_BAD_REQUEST, data={"details": "this employee does not exist!"})
         if employee.is_reviewed_by_gpt:
-            return Response(
-                status=status.HTTP_400_BAD_REQUEST,
-                data={'details': 'this feedback already reviewed!'}
-            )
+            return Response(status=status.HTTP_400_BAD_REQUEST, data={"details": "this feedback already reviewed!"})
 
         text = generate_text(feedback)
         print(text)
-        return Response({'text': text})
+        return Response({"text": text})

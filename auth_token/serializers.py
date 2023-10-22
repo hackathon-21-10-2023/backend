@@ -10,6 +10,7 @@ class LoginSerializer(serializers.Serializer):
     Email and password are required.
     Returns a JSON web token.
     """
+
     login = serializers.CharField(write_only=True)
     password = serializers.CharField(max_length=128, write_only=True)
 
@@ -31,48 +32,40 @@ class LoginSerializer(serializers.Serializer):
         """
         Validates user data.
         """
-        email = data.get('login', None)
-        password = data.get('password', None)
+        email = data.get("login", None)
+        password = data.get("password", None)
 
         if email is None:
-            raise serializers.ValidationError(
-                'An email address is required to log in.'
-            )
+            raise serializers.ValidationError("An email address is required to log in.")
 
         if password is None:
-            raise serializers.ValidationError(
-                'A password is required to log in.'
-            )
+            raise serializers.ValidationError("A password is required to log in.")
 
         try:
-            user = User.objects.get(username=email, password=password)  # зачем тут authenticate? у меня с ним не работает
+            user = User.objects.get(
+                username=email, password=password
+            )  # зачем тут authenticate? у меня с ним не работает
         except User.DoesNotExist:
-            raise serializers.ValidationError(
-                'A user with this email and password was not found.'
-            )
+            raise serializers.ValidationError("A user with this email and password was not found.")
         # user = authenticate(username=email, password=password)
 
         if user is None:
-            raise serializers.ValidationError(
-                'A user with this email and password was not found.'
-            )
+            raise serializers.ValidationError("A user with this email and password was not found.")
 
         if not user.is_active:
-            raise serializers.ValidationError(
-                'This user has been deactivated.'
-            )
+            raise serializers.ValidationError("This user has been deactivated.")
 
         return {
-            'token': user.token,
-            'name': user.name,
-            'surname': user.surname,
-            'email': user.email,
-            'department': user.department,
-            'position': user.position,
-            'photo': user.photo,
-            'is_intern': user.is_intern,
-            'is_head': user.is_head,
-            'is_awaiting_feedback': user.is_awaiting_feedback,
-            'feedback_viewed': user.feedback_viewed,
-            'id': user.id
+            "token": user.token,
+            "name": user.name,
+            "surname": user.surname,
+            "email": user.email,
+            "department": user.department,
+            "position": user.position,
+            "photo": user.photo,
+            "is_intern": user.is_intern,
+            "is_head": user.is_head,
+            "is_awaiting_feedback": user.is_awaiting_feedback,
+            "feedback_viewed": user.feedback_viewed,
+            "id": user.id,
         }
