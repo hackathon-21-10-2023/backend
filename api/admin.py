@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import User, Department, Feedback, FeedbackItem, WaitForReview, Metric
+from .models import User, Department, Feedback, FeedbackItem, WaitForReview, Metric, FeedbackForUser
 
 
 @admin.register(User)
@@ -25,3 +25,4 @@ admin.site.register(Department, admin.ModelAdmin)
 admin.site.register(Feedback, admin.ModelAdmin)
 admin.site.register(FeedbackItem, admin.ModelAdmin)
 admin.site.register(Metric, admin.ModelAdmin)
+admin.site.register(FeedbackForUser, admin.ModelAdmin)

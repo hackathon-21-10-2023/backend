@@ -223,7 +223,7 @@ if (JWTAuthToken) {
 
 ### Список всех общих отзывов о сотруднике
 
-```GET /review/{employee_id}/```
+```GET /review/detailed_list/for/<int:employee_id>/```
 
 Ответ:
 ```json
@@ -232,29 +232,57 @@ if (JWTAuthToken) {
     "feedback_items": [
       {
         "metric_title": "участие в корпоративной жизни компании",
-        "text": "супер-пупер",
-        "score_tone": 1,
-        "score_tone_as_human": "положительная",
+        "text": "bad",
+        "score_tone": null,
+        "score_tone_as_human": "<нет оценки>",
+        "score": 2,
+        "score_as_human": "плохо",
+        "from_user": "Кирилл Куликов",
+        "form_user_id": 7
+      },
+      {
+        "metric_title": "участие в рабочих задачах",
+        "text": "cool",
+        "score_tone": null,
+        "score_tone_as_human": "<нет оценки>",
         "score": 5,
         "score_as_human": "отлично",
+        "from_user": "Кирилл Куликов",
+        "form_user_id": 7
+      }
+    ],
+    "text": null,
+    "score": 4,
+    "score_as_human": "хорошо",
+    "created_at": "2023-10-22T10:21:03.516935Z"
+  },
+  {
+    "feedback_items": [
+      {
+        "metric_title": "участие в корпоративной жизни компании",
+        "text": "sghwgiwhioeghiowehgewhgoiewgh",
+        "score_tone": null,
+        "score_tone_as_human": "<нет оценки>",
+        "score": 1,
+        "score_as_human": "ужасно",
         "from_user": "Максим Окулов",
         "form_user_id": 4
       },
       {
         "metric_title": "участие в рабочих задачах",
-        "text": "ааааа",
-        "score_tone": 0,
-        "score_tone_as_human": "нейтральная",
+        "text": "gioerhiguherwghrewhgrwgugiowrgijo",
+        "score_tone": null,
+        "score_tone_as_human": "<нет оценки>",
         "score": 5,
         "score_as_human": "отлично",
         "from_user": "Максим Окулов",
         "form_user_id": 4
       }
     ],
-    "text": "Стажер Кирилл продемонстрировала разнонаправленные качества в рамках своей работы. В сфере участия в рабочих задачах, она была мотивированной, но иногда испытывала трудности в выполнении задач из-за коммуникативных проблем. Свой вклад в корпоративную жизнь компании она вносила в меньшей степени, ограничившись плавным плытьем по течению без активных инициатив",
-    "score": 4,
-    "score_as_human": "хорошо",
-    "created_at": "2023-10-21T18:33:56.073744Z"
+    "text": null,
+    "score": 3,
+    "score_as_human": "удовлетворительно",
+    "created_at": "2023-10-22T10:28:06.888995Z"
   }
 ]
 ```

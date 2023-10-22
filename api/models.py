@@ -105,16 +105,20 @@ class WaitForReview(models.Model):
         verbose_name_plural = "Ожидания обратных связей"
 
 
+class FeedbackForUser(models.Model):
+    feedbacks = models.ManyToManyField("Feedback", verbose_name='Отзыв об одном сотруднике', related_name='feedbacks_for_user', blank=True)
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name='Время создания')
+    score = models.IntegerField(verbose_name='Оценка', validators=[MinValueValidator(1), MaxValueValidator(5)], null=True, blank=True)
+    text = models.TextField(verbose_name='Текст', null=True, blank=True)
+    score_tone = models.IntegerField(verbose_name='Тональность оценки',
+                                     validators=[MinValueValidator(-1), MaxValueValidator(1)], null=True, blank=True)
+
+
 class Feedback(models.Model):
     to_user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='feedback_to_user',
                                 verbose_name='Пользователь')
     from_user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='feedback_from_user',
                                      verbose_name='Отправитель')
-    score = models.IntegerField(verbose_name='Оценка', validators=[MinValueValidator(1), MaxValueValidator(5)])
-    text = models.TextField(verbose_name='Текст', null=True, blank=True)
-    created_at = models.DateTimeField(auto_now_add=True, verbose_name='Время создания')
-    score_tone = models.IntegerField(verbose_name='Тональность оценки',
-                                     validators=[MinValueValidator(-1), MaxValueValidator(1)], null=True, blank=True)
 
     class Meta:
         verbose_name = 'Общий отзыв'
@@ -124,7 +128,7 @@ class Feedback(models.Model):
         return f"{self.from_user} -> {self.to_user}"
 
     def save(
-            self, force_insert=False, force_update=False, using=None, update_fields=None
+        self, force_insert=False, force_update=False, using=None, update_fields=None
     ):
         if self.pk:
             self.score_tone = 0
@@ -134,6 +138,8 @@ class Feedback(models.Model):
         super().save(force_insert, force_update, using, update_fields)
 
     def score_as_human(self):
+        if self.score is None:
+            return '<нет оценки>'
         score_map = {
             1: 'ужасно',
             2: 'плохо',
@@ -161,6 +167,8 @@ class FeedbackItem(models.Model):
         return self.metric.title if self.metric else ''
 
     def score_tone_as_human(self):
+        if self.score_tone is None:
+            return '<нет оценки>'
         if self.score_tone == 0:
             return 'нейтральная'
         elif self.score_tone > 0:
@@ -169,6 +177,8 @@ class FeedbackItem(models.Model):
             return 'негативная'
 
     def score_as_human(self):
+        if self.score is None:
+            return '<нет оценки>'
         score_map = {
             1: 'ужасно',
             2: 'плохо',

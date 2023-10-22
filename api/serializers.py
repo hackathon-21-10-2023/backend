@@ -32,7 +32,15 @@ class FeedbackItemSerializer(serializers.ModelSerializer):
 class FeedbackSerializer(serializers.ModelSerializer):
     class Meta:
         model = Feedback
-        fields = ['feedback_items', 'text', 'score', 'score_as_human', 'created_at']
+        fields = ['id', 'to_user']
+
+    to_user = UserSerializer(read_only=True)
+
+
+class FeedbackDetailedSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Feedback
+        fields = ['feedback_items', 'text', 'score', 'score_as_human']
 
     feedback_items = FeedbackItemSerializer(many=True)
 
