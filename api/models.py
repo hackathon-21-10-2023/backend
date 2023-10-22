@@ -110,11 +110,13 @@ class Feedback(models.Model):
                                 verbose_name='Пользователь')
     from_user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='feedback_from_user',
                                      verbose_name='Отправитель')
-    score = models.IntegerField(verbose_name='Оценка', validators=[MinValueValidator(1), MaxValueValidator(5)])
+    score = models.IntegerField(verbose_name='Оценка', validators=[MinValueValidator(1), MaxValueValidator(5)],
+                                null=True, blank=True)
     text = models.TextField(verbose_name='Текст', null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='Время создания')
     score_tone = models.IntegerField(verbose_name='Тональность оценки',
                                      validators=[MinValueValidator(-1), MaxValueValidator(1)], null=True, blank=True)
+    is_reviewed_by_gpt = models.BooleanField(default=False)
 
     class Meta:
         verbose_name = 'Общий отзыв'

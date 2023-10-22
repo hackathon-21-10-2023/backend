@@ -85,7 +85,7 @@ if (JWTAuthToken) {
 
 
 ### Получение подчиненных руководителя
-```GET /list_slaves_of_head/<int:pk>/```
+```GET /list_slaves_of_head/{int:pk}/```
 
 Ответ:
 ```json
@@ -122,7 +122,7 @@ if (JWTAuthToken) {
 ```
 
 ### Запросить обратную связь
-```POST /ask_review/<int:pk>/```
+```POST /ask_review/{int:pk}/```
 
 Возвращает список пользователей, которые должны будут оценить `<int:pk>` сотрудника:
 ```json
