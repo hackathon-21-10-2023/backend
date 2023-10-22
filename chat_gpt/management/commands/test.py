@@ -1,18 +1,19 @@
 import g4f
 import openai
-# API_KEY = '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'
-# openai.api_key = API_KEY
+API_KEY = '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'
+openai.api_key = API_KEY
 from django.core.management import BaseCommand
 
 from api.models import FeedbackForUser, Metric, FeedbackItem
 
-openai.api_base = "http://127.0.0.1:1337/v1"
+
+# openai.api_base = "http://127.0.0.1:1337/v1"
 
 
 def ask_gpt(feedback_for_user_id):
     feedback_for_user = FeedbackForUser.objects.get(id=feedback_for_user_id)
     text = generate_text(feedback_for_user)
-    response = g4f.ChatCompletion.create(
+    response = openai.ChatCompletion.create(
         model="gpt-3.5-turbo",
         messages=[{"role": "user", "content": text}],
     )
