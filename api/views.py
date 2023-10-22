@@ -147,7 +147,6 @@ class ReviewCreateView(generics.CreateAPIView):
             feedback = Feedback.objects.create(
                 from_user=self.request.user,
                 to_user=to_user,
-                score=average_score,
             )
 
             for item in feedback_items:
@@ -164,7 +163,7 @@ class ReviewCreateView(generics.CreateAPIView):
                 # сотрудник получил отзывы со всех коллег
                 feedbacks = Feedback.objects.filter(to_user=to_user)
 
-                aggregated_feedback = FeedbackForUser.objects.create()
+                aggregated_feedback = FeedbackForUser.objects.create(score=average_score)
                 aggregated_feedback.feedbacks.set(feedbacks)
                 print(f"сотрудник {to_user} получил отзывы со всех коллег – {aggregated_feedback}")
 
