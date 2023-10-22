@@ -186,4 +186,4 @@ class ReviewCreateView(generics.CreateAPIView):
                             feedback_item.save()
 
                 aggregated_feedback.save()
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response({"status": "ok"}, status=status.HTTP_201_CREATED)
