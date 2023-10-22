@@ -128,3 +128,5 @@ SWAGGER_SETTINGS = {
       }
    }
 }
+
+BASE_URL_SWAGGER = getenv("BASE_URL_SWAGGER", "http://127.0.0.1:8000")
