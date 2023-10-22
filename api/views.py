@@ -11,7 +11,7 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.views import APIView
 
 from api.serializers import UserSerializer, MetricSerializer, FeedbackDetailedSerializer, FeedbackCreateSerializer, \
-    FeedbackSerializer
+    FeedbackSerializer, FeedbackForUserDetailedSerializer, FeedbackForUserListSerializer
 from chat_gpt.management.commands.test import ask_gpt
 from .exceptions import IsNotHeadError, DepartmentNotFoundError, NoHeadForDepartamentFoundError
 from .models import User, WaitForReview, Metric, Feedback, FeedbackItem, FeedbackForUser
@@ -95,9 +95,9 @@ class MetricListView(generics.ListAPIView):
         return Metric.objects.all()
 
 
-class ReviewCompressedListView(generics.ListAPIView):
+class FeedbackForUserListView(generics.ListAPIView):
     permission_classes = [permissions.IsAuthenticated]
-    serializer_class = FeedbackSerializer
+    serializer_class = FeedbackForUserListSerializer
     ordering_fields = ['created_at']
 
     def get_queryset(self):
@@ -106,20 +106,20 @@ class ReviewCompressedListView(generics.ListAPIView):
             return Response(status=status.HTTP_400_BAD_REQUEST,
                             data={"detail": "Employee id was not passed!"})
         employee = get_object_or_404(User, pk=employee_id)
-        return Feedback.objects.filter(to_user=employee)
+        feedbacks = Feedback.objects.filter(to_user=employee)
+        return FeedbackForUser.objects.filter(feedbacks__in=feedbacks).distinct()
 
 
-class ReviewDetailedListView(generics.RetrieveAPIView):
+class FeedbackForUserDetailedView(generics.RetrieveAPIView):
     permission_classes = [permissions.IsAuthenticated]
-    serializer_class = FeedbackDetailedSerializer
-    ordering_fields = ['created_at']
+    serializer_class = FeedbackForUserDetailedSerializer
 
     def get_object(self):
         feedback_id = self.kwargs.get('pk', None)
         if not feedback_id:
             return Response(status=status.HTTP_400_BAD_REQUEST,
                             data={"detail": "feedback_id was not passed!"})
-        return get_object_or_404(Feedback, pk=feedback_id)
+        return get_object_or_404(FeedbackForUser, pk=feedback_id)
 
 
 class ReviewCreateView(generics.CreateAPIView):

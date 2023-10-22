@@ -126,6 +126,10 @@ class FeedbackForUser(models.Model):
         }
         return score_map.get(self.score, f"нет описания оценки для {self.score}")
 
+    @property
+    def to_user(self):
+        return self.feedbacks.first().to_user
+
 
 class Feedback(models.Model):
     to_user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='feedback_to_user',
