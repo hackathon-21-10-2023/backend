@@ -106,8 +106,8 @@ class WaitForReview(models.Model):
 
 
 class Feedback(models.Model):
-    to_user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='feedback_to_user',
-                                   verbose_name='Пользователь')
+    to_user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='feedback_to_user',
+                                verbose_name='Пользователь')
     from_user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='feedback_from_user',
                                      verbose_name='Отправитель')
     score = models.IntegerField(verbose_name='Оценка', validators=[MinValueValidator(1), MaxValueValidator(5)])

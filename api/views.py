@@ -145,4 +145,9 @@ class ReviewCreateView(generics.CreateAPIView):
                     feedback=feedback
                 )
 
+            WaitForReview.objects.get(to_user=to_user).from_users.remove(self.request.user)
+            if WaitForReview.objects.get(to_user=to_user).from_users.all().count() == 0:
+                # сотрудник получил отзывы со всех коллег
+                print(f"сотрудник {to_user} получил отзывы со всех коллег")
+
         return Response(serializer.data, status=status.HTTP_201_CREATED)
