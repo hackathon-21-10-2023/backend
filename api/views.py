@@ -8,9 +8,9 @@ from rest_framework import generics, permissions, status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.views import APIView
 
-from api.serializers import UserSerializer, MetricSerializer, FeedbackSerializer
+from api.serializers import UserSerializer, MetricSerializer, FeedbackSerializer, FeedbackCreateSerializer
 from .exceptions import IsNotHeadError, DepartmentNotFoundError, NoHeadForDepartamentFoundError
-from .models import User, WaitForReview, Metric, Feedback
+from .models import User, WaitForReview, Metric, Feedback, FeedbackItem
 
 
 @api_view()
@@ -94,15 +94,55 @@ class MetricListView(generics.ListAPIView):
 class ReviewListView(generics.ListAPIView):
     permission_classes = [permissions.IsAuthenticated]
     serializer_class = FeedbackSerializer
+    ordering_fields = ['created_at']
 
     def get_queryset(self):
         employee_id = self.kwargs.get('employee_id', None)
         if not employee_id:
             return Response(status=status.HTTP_400_BAD_REQUEST,
                             data={"detail": "Employee id was not passed!"})
-        employee = User.objects.filter(id=employee_id).last()
-        if not employee:
-            return Response(status=status.HTTP_400_BAD_REQUEST,
-                            data={"detail": "This employee does not exist!"})
-
+        employee = get_object_or_404(User, pk=employee_id)
         return Feedback.objects.filter(to_user=employee)
+
+
+class ReviewCreateView(generics.CreateAPIView):
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = FeedbackCreateSerializer
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        data = serializer.validated_data
+        feedback_items = data["feedback_items"]
+
+        to_user = get_object_or_404(User, pk=data["to_user_id"])
+
+        average_score = 0
+        for item in feedback_items:
+            average_score += item["score"]
+            get_object_or_404(Metric, pk=item['metric_id'])
+
+        average_score /= len(feedback_items)
+        average_score = round(average_score)
+        if average_score < 0:
+            average_score = 0
+        elif average_score > 5:
+            average_score = 5
+
+        with transaction.atomic():
+            feedback = Feedback.objects.create(
+                from_user=self.request.user,
+                to_user=to_user,
+                score=average_score,
+            )
+
+            for item in feedback_items:
+                metric = get_object_or_404(Metric, pk=item['metric_id'])
+                FeedbackItem.objects.create(
+                    metric=metric,
+                    text=item['text'],
+                    score=item['score'],
+                    feedback=feedback
+                )
+
+        return Response(serializer.data, status=status.HTTP_201_CREATED)

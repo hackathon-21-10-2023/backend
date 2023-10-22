@@ -111,10 +111,10 @@ class Feedback(models.Model):
     from_user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='feedback_from_user',
                                      verbose_name='Отправитель')
     score = models.IntegerField(verbose_name='Оценка', validators=[MinValueValidator(1), MaxValueValidator(5)])
-    text = models.TextField(verbose_name='Текст')
+    text = models.TextField(verbose_name='Текст', null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='Время создания')
     score_tone = models.IntegerField(verbose_name='Тональность оценки',
-                                     validators=[MinValueValidator(-1), MaxValueValidator(1)])
+                                     validators=[MinValueValidator(-1), MaxValueValidator(1)], null=True, blank=True)
 
     class Meta:
         verbose_name = 'Общий отзыв'
@@ -131,26 +131,24 @@ class Feedback(models.Model):
             for item in self.feedback_items.all():
                 self.score_tone += item.score_tone
             self.score_tone /= len(self.feedback_items.all())
-        super().save()
+        super().save(force_insert, force_update, using, update_fields)
 
     def score_as_human(self):
-        if self.score == 1:
-            return 'ужасно'
-        elif self.score == 2:
-            return 'плохо'
-        elif self.score == 3:
-            return 'удовлетворительно'
-        elif self.score == 4:
-            return 'хорошо'
-        elif self.score == 5:
-            return 'отлично'
+        score_map = {
+            1: 'ужасно',
+            2: 'плохо',
+            3: 'удовлетворительно',
+            4: 'хорошо',
+            5: 'отлично'
+        }
+        return score_map.get(self.score, f"нет описания оценки для {self.score}")
 
 
 class FeedbackItem(models.Model):
     metric = models.ForeignKey(to='Metric', on_delete=models.CASCADE, null=True)
     text = models.TextField(verbose_name='Текст')
     score_tone = models.IntegerField(verbose_name='Тональность оценки',
-                                     validators=[MinValueValidator(-1), MaxValueValidator(1)])
+                                     validators=[MinValueValidator(-1), MaxValueValidator(1)], null=True, blank=True)
     score = models.IntegerField(verbose_name='Оценка', default=5)
     feedback = models.ForeignKey(Feedback, on_delete=models.CASCADE, related_name='feedback_items',
                                  verbose_name='Общий отзыв', )
@@ -171,16 +169,14 @@ class FeedbackItem(models.Model):
             return 'негативная'
 
     def score_as_human(self):
-        if self.score == 1:
-            return 'ужасно'
-        elif self.score == 2:
-            return 'плохо'
-        elif self.score == 3:
-            return 'удовлетворительно'
-        elif self.score == 4:
-            return 'хорошо'
-        elif self.score == 5:
-            return 'отлично'
+        score_map = {
+            1: 'ужасно',
+            2: 'плохо',
+            3: 'удовлетворительно',
+            4: 'хорошо',
+            5: 'отлично'
+        }
+        return score_map.get(self.score, f"нет описания оценки для {self.score}")
 
     def from_user(self):
         return f'{self.feedback.from_user.name.capitalize()} {self.feedback.from_user.surname.capitalize()}'

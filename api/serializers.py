@@ -1,5 +1,6 @@
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
+from rest_framework.generics import get_object_or_404
 
 from api.models import Metric, FeedbackItem, Feedback
 
@@ -17,7 +18,7 @@ class UserSerializer(serializers.ModelSerializer):
 class MetricSerializer(serializers.ModelSerializer):
     class Meta:
         model = Metric
-        fields = ['title', 'description']
+        fields = ['title', 'description', 'id']
 
 
 class FeedbackItemSerializer(serializers.ModelSerializer):
@@ -25,11 +26,23 @@ class FeedbackItemSerializer(serializers.ModelSerializer):
         model = FeedbackItem
         fields = ['metric_title', 'text', 'score_tone', 'score_tone_as_human', 'score', 'score_as_human', 'from_user',
                   'form_user_id']
+        ordering = ['form_user_id']
 
 
 class FeedbackSerializer(serializers.ModelSerializer):
     class Meta:
         model = Feedback
-        fields = ['feedback_items', 'text', 'score', 'score_as_human']
+        fields = ['feedback_items', 'text', 'score', 'score_as_human', 'created_at']
 
     feedback_items = FeedbackItemSerializer(many=True)
+
+
+class FeedbackItemCreateSerializer(serializers.Serializer):
+    metric_id = serializers.IntegerField(required=True)
+    text = serializers.CharField(required=True)
+    score = serializers.IntegerField(min_value=1, max_value=5, required=True)
+
+
+class FeedbackCreateSerializer(serializers.Serializer):
+    feedback_items = FeedbackItemCreateSerializer(many=True, required=True)
+    to_user_id = serializers.IntegerField(required=True)
