@@ -8,9 +8,10 @@ from rest_framework import generics, permissions, status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.views import APIView
 
-from api.serializers import UserSerializer, MetricSerializer, FeedbackSerializer, FeedbackCreateSerializer
+from api.serializers import UserSerializer, MetricSerializer, FeedbackDetailedSerializer, FeedbackCreateSerializer, \
+    FeedbackSerializer
 from .exceptions import IsNotHeadError, DepartmentNotFoundError, NoHeadForDepartamentFoundError
-from .models import User, WaitForReview, Metric, Feedback, FeedbackItem
+from .models import User, WaitForReview, Metric, Feedback, FeedbackItem, FeedbackForUser
 
 
 @api_view()
@@ -91,7 +92,7 @@ class MetricListView(generics.ListAPIView):
         return Metric.objects.all()
 
 
-class ReviewListView(generics.ListAPIView):
+class ReviewCompressedListView(generics.ListAPIView):
     permission_classes = [permissions.IsAuthenticated]
     serializer_class = FeedbackSerializer
     ordering_fields = ['created_at']
@@ -103,6 +104,19 @@ class ReviewListView(generics.ListAPIView):
                             data={"detail": "Employee id was not passed!"})
         employee = get_object_or_404(User, pk=employee_id)
         return Feedback.objects.filter(to_user=employee)
+
+
+class ReviewDetailedListView(generics.RetrieveAPIView):
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = FeedbackDetailedSerializer
+    ordering_fields = ['created_at']
+
+    def get_object(self):
+        feedback_id = self.kwargs.get('pk', None)
+        if not feedback_id:
+            return Response(status=status.HTTP_400_BAD_REQUEST,
+                            data={"detail": "feedback_id was not passed!"})
+        return get_object_or_404(Feedback, pk=feedback_id)
 
 
 class ReviewCreateView(generics.CreateAPIView):
@@ -148,6 +162,10 @@ class ReviewCreateView(generics.CreateAPIView):
             WaitForReview.objects.get(to_user=to_user).from_users.remove(self.request.user)
             if WaitForReview.objects.get(to_user=to_user).from_users.all().count() == 0:
                 # сотрудник получил отзывы со всех коллег
-                print(f"сотрудник {to_user} получил отзывы со всех коллег")
+                feedbacks = Feedback.objects.filter(to_user=to_user)
+
+                aggregated_feedback = FeedbackForUser.objects.create()
+                aggregated_feedback.feedbacks.set(feedbacks)
+                print(f"сотрудник {to_user} получил отзывы со всех коллег – {aggregated_feedback}")
 
         return Response(serializer.data, status=status.HTTP_201_CREATED)
