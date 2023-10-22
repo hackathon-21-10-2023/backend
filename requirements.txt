@@ -14,6 +14,7 @@ charset-normalizer==3.3.0
 click==8.1.7
 curl-cffi==0.5.9
 Django==4.2.6
+django-cors-headers==4.3.0
 djangorestframework==3.14.0
 drf-yasg==1.21.7
 duckduckgo-search==3.9.3
