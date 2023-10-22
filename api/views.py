@@ -62,7 +62,7 @@ class AskReview(APIView):
 
         with transaction.atomic():
             user_to_review, _ = WaitForReview.objects.get_or_create(to_user=user)
-            user_to_review.from_users.set(reviewers)
+            user_to_review.from_users.set(reviewers.exclude(username="admin"))
             user.save()
 
         serializer = self.serializer_class(reviewers, many=True)
