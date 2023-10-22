@@ -170,9 +170,12 @@ class ReviewCreateView(generics.CreateAPIView):
                 aggregated_feedback.feedbacks.set(feedbacks)
                 print(f"сотрудник {to_user} получил отзывы со всех коллег – {aggregated_feedback}")
 
-                try:
+                while True:
                     data = ask_gpt(aggregated_feedback.id)
                     print("data from GPT:", data)
+                    if data.startswith("Hmm,"):
+                        print("Trying again")
+                        continue
                     data = json.loads(data)
                     aggregated_feedback.text = data.get('main', 'Ошибка!')
                     aggregated_feedback.score = round(data.get('score', 5))
@@ -187,8 +190,6 @@ class ReviewCreateView(generics.CreateAPIView):
                                 feedback_item = FeedbackItem.objects.get(id=item_id)
                                 feedback_item.score_tone = metric.get('score')
                                 feedback_item.save()
-                except Exception as e:
-                    raise ValidationError(e)
-
-                aggregated_feedback.save()
+                    aggregated_feedback.save()
+                    break
         return Response({"status": "ok"}, status=status.HTTP_201_CREATED)
