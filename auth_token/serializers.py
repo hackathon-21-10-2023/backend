@@ -25,6 +25,7 @@ class LoginSerializer(serializers.Serializer):
     is_head = serializers.BooleanField(read_only=True)
     is_awaiting_feedback = serializers.BooleanField(read_only=True)
     feedback_viewed = serializers.BooleanField(read_only=True)
+    id = serializers.IntegerField(read_only=True)
 
     def validate(self, data):
         """
@@ -72,5 +73,6 @@ class LoginSerializer(serializers.Serializer):
             'is_intern': user.is_intern,
             'is_head': user.is_head,
             'is_awaiting_feedback': user.is_awaiting_feedback,
-            'feedback_viewed': user.feedback_viewed
+            'feedback_viewed': user.feedback_viewed,
+            'id': user.id
         }
