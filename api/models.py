@@ -112,13 +112,19 @@ class FeedbackForUser(models.Model):
     text = models.TextField(verbose_name='Текст', null=True, blank=True)
     score_tone = models.IntegerField(verbose_name='Тональность оценки',
                                      validators=[MinValueValidator(-1), MaxValueValidator(1)], null=True, blank=True)
-    score = models.IntegerField(verbose_name='Оценка', validators=[MinValueValidator(1), MaxValueValidator(5)],
-                                null=True, blank=True)
-    text = models.TextField(verbose_name='Текст', null=True, blank=True)
-    created_at = models.DateTimeField(auto_now_add=True, verbose_name='Время создания')
-    score_tone = models.IntegerField(verbose_name='Тональность оценки',
-                                     validators=[MinValueValidator(-1), MaxValueValidator(1)], null=True, blank=True)
     is_reviewed_by_gpt = models.BooleanField(default=False)
+
+    def score_as_human(self):
+        if self.score is None:
+            return '<нет оценки>'
+        score_map = {
+            1: 'ужасно',
+            2: 'плохо',
+            3: 'удовлетворительно',
+            4: 'хорошо',
+            5: 'отлично'
+        }
+        return score_map.get(self.score, f"нет описания оценки для {self.score}")
 
 
 class Feedback(models.Model):
@@ -143,18 +149,6 @@ class Feedback(models.Model):
                 self.score_tone += item.score_tone
             self.score_tone /= len(self.feedback_items.all())
         super().save(force_insert, force_update, using, update_fields)
-
-    def score_as_human(self):
-        if self.score is None:
-            return '<нет оценки>'
-        score_map = {
-            1: 'ужасно',
-            2: 'плохо',
-            3: 'удовлетворительно',
-            4: 'хорошо',
-            5: 'отлично'
-        }
-        return score_map.get(self.score, f"нет описания оценки для {self.score}")
 
 
 class FeedbackItem(models.Model):

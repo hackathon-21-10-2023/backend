@@ -40,7 +40,7 @@ class FeedbackSerializer(serializers.ModelSerializer):
 class FeedbackDetailedSerializer(serializers.ModelSerializer):
     class Meta:
         model = Feedback
-        fields = ['feedback_items', 'text', 'score', 'score_as_human']
+        fields = ['feedback_items']
 
     feedback_items = FeedbackItemSerializer(many=True)
 
