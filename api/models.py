@@ -199,3 +199,6 @@ class Metric(models.Model):
     class Meta:
         verbose_name = 'Метрика'
         verbose_name_plural = 'Метрики'
+
+    def __str__(self):
+        return self.title
