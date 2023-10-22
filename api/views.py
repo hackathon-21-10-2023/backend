@@ -1,3 +1,5 @@
+import json
+
 from django.db import transaction
 from django.db.models import Subquery
 from rest_framework.exceptions import PermissionDenied, ValidationError
@@ -10,6 +12,7 @@ from rest_framework.views import APIView
 
 from api.serializers import UserSerializer, MetricSerializer, FeedbackDetailedSerializer, FeedbackCreateSerializer, \
     FeedbackSerializer
+from chat_gpt.management.commands.test import ask_gpt
 from .exceptions import IsNotHeadError, DepartmentNotFoundError, NoHeadForDepartamentFoundError
 from .models import User, WaitForReview, Metric, Feedback, FeedbackItem, FeedbackForUser
 
@@ -166,5 +169,21 @@ class ReviewCreateView(generics.CreateAPIView):
                 aggregated_feedback = FeedbackForUser.objects.create(score=average_score)
                 aggregated_feedback.feedbacks.set(feedbacks)
                 print(f"сотрудник {to_user} получил отзывы со всех коллег – {aggregated_feedback}")
+                data = ask_gpt(aggregated_feedback.id)
+                data = json.loads(data)
+                aggregated_feedback.text = data.get('main', 'Ошибка!')
+                aggregated_feedback.score = round(data.get('score', 5))
+                tonal_data = data.get('tonal', None)
+                if tonal_data:
+                    for t in tonal_data:
+                        metric_list = t.get('metrik_list')
+                        for metric in metric_list:
+                            item_id = metric.get('item_id', None)
+                            if not item_id:
+                                raise ValidationError('item not found!')
+                            feedback_item = FeedbackItem.objects.get(id=item_id)
+                            feedback_item.score_tone = metric.get('score')
+                            feedback_item.save()
 
+                aggregated_feedback.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)

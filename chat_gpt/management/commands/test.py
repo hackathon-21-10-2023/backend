@@ -4,36 +4,51 @@ import openai
 # openai.api_key = API_KEY
 from django.core.management import BaseCommand
 
+from api.models import FeedbackForUser, Metric, FeedbackItem
+
 openai.api_base = "http://127.0.0.1:1337/v1"
 
 
-def generate_text():
-    metrics = {"metrics": [
-        {"id": 0, "name": "Участие в рабочих задачах"},
-        {"id": 1, "name": "Участие в корпоративной жизни компании"},
-    ]}
-    worker_name = 'Полина'
-    data = [
-        {
-            "author": "Максим Окулов",
-            "metrics": [
-                {"metrics_id": 0, "score": 3, "text": "Сотрудник был мотивирован, но не всегда выполнял задачи "
-                                                     "корректно из-за плохой коммуникации."},
-                {"metrics_id": 1, "score": 2, "text": "Сотрудник не предлагал ничего нового, а просто плыл по "
-                                                     "течению."},
-            ]
-        },
-        {
-            "author": "Кирилл Куликов",
-            "metrics": [
-                {"metrics_id": 0, "score": 2, "text": "Сотрудник выполнил лишь 26% от поставленных задач. Выполнял "
-                                                     "задачи долго."},
-                {"metrics_id": 1, "score": 5, "text": "Cотрудник организовывает мероприятие 'пятница настольных игр'. "
-                                                     "Это делает команду дружнее, что соответствует корпоративным "
-                                                     "ценностям."},
-            ]
-        },
-    ]
+def ask_gpt(feedback_for_user_id):
+    feedback_for_user = FeedbackForUser.objects.get(id=feedback_for_user_id)
+    text = generate_text(feedback_for_user)
+    response = g4f.ChatCompletion.create(
+        model="gpt-3.5-turbo",
+        messages=[{"role": "user", "content": text}],
+    )
+    return response
+
+
+def generate_text(feedback_for_user: FeedbackForUser):
+    metrics = {'metrics': []}
+    for metric in Metric.objects.all():
+        metrics['metrics'].append(
+            {"id": metric.id, "name": metric.title},
+        )
+    feedback = feedback_for_user.feedbacks.last()
+    worker_name = f'{feedback.to_user.name.capitalize()} {feedback.to_user.surname.capitalize()}'
+
+    data = []
+    feedbacks = feedback_for_user.feedbacks.all()
+    for feedback in feedbacks:
+        i = {
+            "author": f'{feedback.from_user.name.capitalize()} {feedback.from_user.surname.capitalize()}',
+            'metrics': []
+        }
+        feedback_items = FeedbackItem.objects.filter(feedback=feedback)
+        for feedback_item in feedback_items:
+            i['metrics'].append(
+                {
+                    "metrics_id": feedback_item.metric.id,
+                    'score': feedback_item.score,
+                    'text': feedback_item.text,
+                    'feedback_item_id': feedback_item.id
+                }
+            )
+
+        data.append(i)
+    # print(metrics)
+    # print(data)
 
     text = f'''Ты ассистент, который должен анализировать отзывы авторов о стажерах. Я буду предоставлять тебе данные в таком 
     формате: 
@@ -44,7 +59,7 @@ def generate_text():
 {{"metrics": ["id": Айди метрики, "name": Название метрики]}}
 
 Массив метрик в формате json: {{"author": Имя автора, который оставляет отзыв, "metriks": [{{"metrics_id": id 
-метрики из массива названий метрик, "score": Оценка по 5 бальной шкале, "text": Отзыв по метрике}}] 
+метрики из массива названий метрик, "score": Оценка по 5 бальной шкале, "text": Отзыв по метрике, "feedback_item_id": АЙДИ ОТЗЫВА ВНУТРИ СИСТЕМЫ}}] 
 
 
 Твоя определить эмоциональную окраску каждого отзыва (положительный, нейтральный, отрицательный отзыв). 
@@ -65,23 +80,14 @@ def generate_text():
 Оценка тональности должна быть выражена в числе, где 0 - нейтрально, -1 - негативно, 1 положительно. Оценка тональности должна быть без пояснений.
 
 Выводи в ответ только в формате json, только json и ничего более, без каких либо пояснений: {{"main": ОБЩИЙ ОТЗЫВ, "tonal": [{{"name": ИМЯ АВТОРА, 
-"metrik_list": ["id": АЙДИ МЕТРИКИ, "score": Оценка тональности метрики]]}}, "score": ОБЩИЙ БАЛЛ}} 
+"metrik_list": ["id": АЙДИ МЕТРИКИ, "score": Оценка тональности метрики, "item_id": АЙДИ ОТЗЫВА ВНУТРИ СИСТЕМЫ]]}}, "score": ОБЩИЙ БАЛЛ}} 
 
 
 '''
     return text
 
 
-def ask_gpt():
-    text = generate_text()
-    response = g4f.ChatCompletion.create(
-        model="gpt-3.5-turbo",
-        messages=[{"role": "user", "content": text}],
-    )
-    print(response)
-
-
 class Command(BaseCommand):
 
     def handle(self, *args, **options):
-        ask_gpt()
+        print(ask_gpt(1))
