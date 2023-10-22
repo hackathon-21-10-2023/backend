@@ -11,7 +11,7 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.views import APIView
 
 from api.serializers import UserSerializer, MetricSerializer, FeedbackDetailedSerializer, FeedbackCreateSerializer, \
-    FeedbackSerializer
+    FeedbackSerializer, FeedbackForUserDetailedSerializer, FeedbackForUserListSerializer
 from chat_gpt.management.commands.test import ask_gpt
 from .exceptions import IsNotHeadError, DepartmentNotFoundError, NoHeadForDepartamentFoundError
 from .models import User, WaitForReview, Metric, Feedback, FeedbackItem, FeedbackForUser
@@ -62,7 +62,7 @@ class AskReview(APIView):
 
         with transaction.atomic():
             user_to_review, _ = WaitForReview.objects.get_or_create(to_user=user)
-            user_to_review.from_users.set(reviewers)
+            user_to_review.from_users.set(reviewers.exclude(username="admin"))
             user.save()
 
         serializer = self.serializer_class(reviewers, many=True)
@@ -95,9 +95,9 @@ class MetricListView(generics.ListAPIView):
         return Metric.objects.all()
 
 
-class ReviewCompressedListView(generics.ListAPIView):
+class FeedbackForUserListView(generics.ListAPIView):
     permission_classes = [permissions.IsAuthenticated]
-    serializer_class = FeedbackSerializer
+    serializer_class = FeedbackForUserListSerializer
     ordering_fields = ['created_at']
 
     def get_queryset(self):
@@ -106,20 +106,20 @@ class ReviewCompressedListView(generics.ListAPIView):
             return Response(status=status.HTTP_400_BAD_REQUEST,
                             data={"detail": "Employee id was not passed!"})
         employee = get_object_or_404(User, pk=employee_id)
-        return Feedback.objects.filter(to_user=employee)
+        feedbacks = Feedback.objects.filter(to_user=employee)
+        return FeedbackForUser.objects.filter(feedbacks__in=feedbacks).distinct()
 
 
-class ReviewDetailedListView(generics.RetrieveAPIView):
+class FeedbackForUserDetailedView(generics.RetrieveAPIView):
     permission_classes = [permissions.IsAuthenticated]
-    serializer_class = FeedbackDetailedSerializer
-    ordering_fields = ['created_at']
+    serializer_class = FeedbackForUserDetailedSerializer
 
     def get_object(self):
         feedback_id = self.kwargs.get('pk', None)
         if not feedback_id:
             return Response(status=status.HTTP_400_BAD_REQUEST,
                             data={"detail": "feedback_id was not passed!"})
-        return get_object_or_404(Feedback, pk=feedback_id)
+        return get_object_or_404(FeedbackForUser, pk=feedback_id)
 
 
 class ReviewCreateView(generics.CreateAPIView):
@@ -169,21 +169,27 @@ class ReviewCreateView(generics.CreateAPIView):
                 aggregated_feedback = FeedbackForUser.objects.create(score=average_score)
                 aggregated_feedback.feedbacks.set(feedbacks)
                 print(f"сотрудник {to_user} получил отзывы со всех коллег – {aggregated_feedback}")
-                data = ask_gpt(aggregated_feedback.id)
-                data = json.loads(data)
-                aggregated_feedback.text = data.get('main', 'Ошибка!')
-                aggregated_feedback.score = round(data.get('score', 5))
-                tonal_data = data.get('tonal', None)
-                if tonal_data:
-                    for t in tonal_data:
-                        metric_list = t.get('metrik_list')
-                        for metric in metric_list:
-                            item_id = metric.get('item_id', None)
-                            if not item_id:
-                                raise ValidationError('item not found!')
-                            feedback_item = FeedbackItem.objects.get(id=item_id)
-                            feedback_item.score_tone = metric.get('score')
-                            feedback_item.save()
 
-                aggregated_feedback.save()
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+                while True:
+                    data = ask_gpt(aggregated_feedback.id)
+                    print("data from GPT:", data)
+                    if data.startswith("Hmm,"):
+                        print("Trying again")
+                        continue
+                    data = json.loads(data)
+                    aggregated_feedback.text = data.get('main', 'Ошибка!')
+                    aggregated_feedback.score = round(data.get('score', 5))
+                    tonal_data = data.get('tonal', None)
+                    if tonal_data:
+                        for t in tonal_data:
+                            metric_list = t.get('metrik_list')
+                            for metric in metric_list:
+                                item_id = metric.get('item_id', None)
+                                if not item_id:
+                                    raise ValidationError('item not found!')
+                                feedback_item = FeedbackItem.objects.get(id=item_id)
+                                feedback_item.score_tone = metric.get('score')
+                                feedback_item.save()
+                    aggregated_feedback.save()
+                    break
+        return Response({"status": "ok"}, status=status.HTTP_201_CREATED)

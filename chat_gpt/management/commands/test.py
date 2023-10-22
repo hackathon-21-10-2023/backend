@@ -17,6 +17,7 @@ def ask_gpt(feedback_for_user_id):
         model="gpt-3.5-turbo",
         messages=[{"role": "user", "content": text}],
     )
+    print(f"{text=}")
     return response
 
 

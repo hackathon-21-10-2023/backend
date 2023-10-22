@@ -49,7 +49,7 @@ class User(AbstractUser):
         head_department = self.department
         if not head_department:
             raise DepartmentNotFoundError
-        slaves_and_head_in_department = self.objects.filter(department=head_department)
+        slaves_and_head_in_department = self._meta.model.objects.filter(department=head_department)
         return slaves_and_head_in_department.exclude(pk=self.pk)
 
     @property
@@ -125,6 +125,10 @@ class FeedbackForUser(models.Model):
             5: 'отлично'
         }
         return score_map.get(self.score, f"нет описания оценки для {self.score}")
+
+    @property
+    def to_user(self):
+        return self.feedbacks.first().to_user
 
 
 class Feedback(models.Model):
