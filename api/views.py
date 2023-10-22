@@ -19,7 +19,7 @@ from api.serializers import (
     FeedbackForUserDetailedSerializer,
     FeedbackForUserListSerializer,
 )
-from chat_gpt.management.commands.test import ask_gpt
+from chat_gpt.management.commands.gpt import ask_gpt
 from .exceptions import IsNotHeadError, DepartmentNotFoundError, NoHeadForDepartamentFoundError
 from .models import User, WaitForReview, Metric, Feedback, FeedbackItem, FeedbackForUser
 
